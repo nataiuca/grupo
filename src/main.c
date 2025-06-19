@@ -14,26 +14,26 @@
 
 //int	g_signal = 0;
 
-int main (int argc, char **argv, char **envp)
+int main(int argc, char **argv, char **envp)
 {
 	t_program program;
 
 	(void)argv;
-	//(void)argc;
 	if (argc != 1)
 	{
 		printf("Usage: ./minishell\n");
 		return (1);
 	}
 	init_program(&program, envp);
-	
-	//rl_catch_signals = 0;
-	//set_signals(program);
-	
-	minishell_loop(&program);		 //main loop
-	
-	//printf("\033[0;31m ⚠️DEBUG: volvemos a main y liberamos program\n \033[0m\n"); 			//⚠️testeo
+
+	// 🔧 Desactivar las señales automáticas de readline
+	rl_catch_signals = 0;
+
+	// 🚦 Configura señales generales (si tienes señales globales, por ejemplo, durante inicialización)
+	catch_signal(); // solo si quieres que esté activa desde el arranque
+
+	minishell_loop(&program); // loop principal
+
 	free_program(&program);
 	return (0);
 }
-	

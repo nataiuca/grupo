@@ -12,41 +12,55 @@
 
 #include "minishell.h"
 
-void minishell_loop( t_program *program)
+void minishell_loop(t_program *program)
 {
-	t_all all;
+	t_all	all;
+	char	*prompt;
 
-	all.line = get_line_prompt(program);
-	//all.line = readline(get_prompt(program)); 
-	while (all.line)
+	while (1)
 	{
-		if (ft_str_is_empty_or_spaces(all.line))				//saltar si línea está vacía o sólo espacios
-		{
-			free(all.line);
-			all.line = get_line_prompt(program);
-			//all.line = readline(get_prompt(program));
-			continue;
-		}
-		//else 
-			//add_history(all.line);
-		get_or_set_last_exit_status(program->last_exit_status, true);
-		if (!init_all_structs(&all, program) || !tokenizer(&all, program) || !init_exec_vals(program, &all))
-		{ 
-			if (!handle_reset(&all, program))
-				break; // Si readline falló después del reset
-			continue;
-		}
-		//print_test();-------------------------------------------------------------⚠️testeo------------------
-		//int fd_test = ft_open_fd("dev/test/test_output/test_outputs.txt", O_RDWR | O_CREAT | O_TRUNC, 0777);
-		//print_all_test_3(all.line, all.tokens, fd_test);
-		//close(fd_test);
-		//fin test----------------------------------------------------------------------------------------
+		// 1. Configurar señales (Ctrl+C imprime nueva línea, Ctrl+\ ignorado)
+		catch_signal();
 
+		// 2. Obtener el prompt (ej. "minishell$ ") y leer línea del usuario
+		prompt = get_prompt(program);
+		all.line = readline(prompt);
+		// 3. Manejar Ctrl+D (EOF)
+		catch_interactive(program, all.line, prompt);
 
 		
+
+		// 4. Saltar si la línea está vacía o solo tiene espacios
+		if (ft_str_is_empty_or_spaces(all.line))
+		{
+			free(all.line);
+			continue;
+		}
+
+		// 5. Añadir la línea al historial
+		add_history(all.line);
+
+		// 6. Guardar el último exit status antes de ejecutar
+		get_or_set_last_exit_status(program->last_exit_status, true);
+
+		// 7. Inicializar estructuras y tokenizar
+		if (!init_all_structs(&all, program)
+			|| !tokenizer(&all, program)
+			|| !init_exec_vals(program, &all))
+		{
+			if (!handle_reset(&all, program))
+				break; // salir del loop si hubo error grave o Ctrl+D
+			continue;
+		}
+
+		// 8. Manejar heredocs
 		check_here_doc(&all, program, all.here);
+
+		// 9. Ejecutar comandos
 		ft_exec(&all, program);
+
+		// 10. Limpiar y preparar para la próxima iteración
 		if (!handle_reset(&all, program))
-			break; // Si readline falló después del reset	
+			break;
 	}
 }

@@ -84,6 +84,12 @@ void				print_all_test(char *line, char **token, t_tokens *tokens, int fd);
 void				print_all_test_2(char *line, t_tokens *tokens, t_all *all, int fd);
 void				print_all_test_3(char *line, t_tokens *tokens, int fd);
 
+//src/utils/signals.c
+void	sigint_handler(int signal);
+void	catch_signal(void);
+void	catch_interactive(t_program *program, char *input, char *prompt);
+void enable_echoctl(void);
+
 
 #endif
 
