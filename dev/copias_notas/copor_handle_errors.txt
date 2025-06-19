@@ -1,0 +1,91 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    copor_handle_errors.txt                            :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2025/05/27 08:02:02 by mzolotar          #+#    #+#              #
+#    Updated: 2025/05/27 08:06:40 by mzolotar         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+# include "minishell.h"
+
+//---------------- HANDLE_ERRORS------------------//
+
+
+void	report_error(t_error_type type, char *msg, char *arg)
+{
+	if (arg)
+	{
+		if (type == ERR_CMD_NOT_FOUND || type == ERR_TOO_MANY_ARGS
+		|| type == ERR_NOT_NUMERIC || type == ERR_INVALID_IDENTIFIER)
+		{
+			write(2, arg, ft_strlen(arg));
+			write(2, ": ", 2);
+		}
+		else
+		{
+			write(2, "bash: ", 6);
+			write(2, arg, ft_strlen(arg));
+			write(2, ": ", 2);
+		}
+	}
+	write(2, msg, ft_strlen(msg));
+	write(2, "\n", 1);
+}
+
+int	error_and_return(t_program *program, t_error_type type, char *arg, int err_num)
+{
+	if (type == ERR_MINI)
+		report_error(type, arg, NULL);						//✅ sin bash delante
+	else if (type == ERR_MALLOC)
+		report_error(type, "error allocating memory", arg); //✅ sin bash delante
+	else if (type == ERR_CMD_NOT_FOUND)
+		report_error(type, "command not found", arg);		//✅ sin bash delante
+	else if (type == ERR_IS_DIRECTORY)
+		report_error(type, "Is a directory", arg);			//❌ con bash delante
+	else if (type == ERR_NO_SUCH_FILE)
+		report_error(type, "No such file or directory", arg);	//❌ con bash delante
+	else if (type == ERR_PERMISSION_DENIED)
+		report_error(type, "Permission denied", arg);	//❌ con bash delante
+	else if (type == ERR_EXEC_FORMAT)
+		report_error(type, "Exec format error", arg); 	//❌ con bash delante
+	else if (type == ERR_TOO_MANY_ARGS)
+		report_error(type, "too many arguments", arg);		//✅ sin bash delante
+	else if (type == ERR_NOT_NUMERIC)
+		report_error(type, "numeric argument required", arg); //✅ sin bash delante
+	else if (type == ERR_INVALID_IDENTIFIER)
+		report_error(type, "not a valid identifier", arg);
+	if (program)
+		program->last_exit_status = err_num;
+	return (err_num);
+}
+
+void	report_error_and_exit(t_program *program, t_error_type type, char *arg, int status)
+{
+	if (type == ERR_MINI)
+		report_error(type, arg, NULL);
+	else if (type == ERR_MALLOC)
+		report_error(type, "error allocating memory", arg);
+	else if (type == ERR_CMD_NOT_FOUND)
+		report_error(type, "command not found", arg);
+	else if (type == ERR_IS_DIRECTORY)
+		report_error(type, "Is a directory", arg);
+	else if (type == ERR_NO_SUCH_FILE)
+		report_error(type, "No such file or directory", arg);
+	else if (type == ERR_PERMISSION_DENIED)
+		report_error(type, "Permission denied", arg);
+	else if (type == ERR_EXEC_FORMAT)
+		report_error(type, "Exec format error", arg);
+	else if (type == ERR_TOO_MANY_ARGS)
+		report_error(type, "too many arguments", arg);
+	else if (type == ERR_NOT_NUMERIC)
+		report_error(type, "numeric argument required", arg);
+	else if (type == ERR_INVALID_IDENTIFIER)
+		report_error(type, "not a valid identifier", arg);
+	if (program)
+		program->last_exit_status = status;
+	exit (status);
+}

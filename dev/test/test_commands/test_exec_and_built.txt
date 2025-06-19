@@ -1,0 +1,29 @@
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌──  ─╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+❌ .
+❌ ..
+
+cd . -> ???
+
+✅ echo hola | cat << ls
+✅ ls > > file
+❌ ls | > file wc -l 
+❌ echo hola | cat << ls | > file
+❌ echo hola | > file
+❌ echo hola |  << ls
+
+echo hola | cat > file
+echo hola > file | cat
+
+echo hola |> wc -l                  -> -l: command not found
+echo hola |> grep hola              -> hola: command not found
+echo hola | > file wc -l            -> file tiene 1
+
+echo hola | > file        # falta comando a la derecha
+> file                    # sin comando
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── Signal handling: ──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+Press Ctrl+C (should print a new prompt)
+Press Ctrl+D (should exit the shell)
+Press Ctrl+\ (should do nothing)
+sleep 10 y sleep 10 CTR+C o CTRL+D

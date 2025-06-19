@@ -1,0 +1,560 @@
+⚠️ -> testeo general con exec
+❓ -> diferente bash y mini -> no se gestionan los mismos operadores. 
+✅ -> igual bash y mini- > ok
+
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆
+✅ <ENTER> → No hay tokens, así que no hay comando. Bash simplemente muestra un nuevo prompt sin ejecutar nada. 
+✅ check_empty_line ->  <espacio><espacio><ENTER> → si linea esta vacia o solo espacio o solo enter -> espera comando nuevo y no ejecuta nada
+✅ ''
+✅ ""
+✅ _PTE_TESTEO:  ✒ ver esto con historial, espacios si van al historial
+✅ historial -> actualizacion del  historial al reinicir la linea
+✅ _PTE_TESTEO:  ✒  ""  y '' como -> Command '' not found
+✅ _PTE_TESTEO: '/' + '\t' + '\n'
+✅_PTE_TESTEO:'/' anula caracter que sigue al \ -> ver subject. man bash p 6.
+✅ ./minishell ./minishell 
+✅ $? + $?
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── 💥builtin - pipe- builtin💥.──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+💥builtin - pipe- execve💥
+
+✅ < file grep hola | kakakak | lalala   
+✅ > file grep hola | kakakak | lalala  
+✅ : < file grep hola
+✅ :
+✅ echo "VAR=hola" | unset     # No tiene sentido, no debe funcionar
+✅ ls | unset
+✅ lalala | unset
+✅ lalal | env
+✅ lallla | lalla | env
+✅ lalal | exit 12 25 6 
+✅ lalal | echo hola
+✅ lala | lal | echo hola
+✅ lalal | pwd
+✅ lala | lal | pwd
+✅ lalal | export 
+✅ ls | env 
+✅ pwd | echo hola
+✅ export VAR1=world_2 | ls
+✅ env | lala
+✅ pwd | lalal
+lalalallala  | lallala | echo hola
+lalalalal | lallalal | env
+lalalal | lallalal | pwd
+env | lalalala | lalala
+pwd | lalalala | lalala
+echo hola | lalalala | lalala
+lalalala | lalala | echo hola
+lalalala | echo hola | lalala 
+ls | lalalala | lalala
+lalalala | lalala | ls
+lalalala | ls | lalala 
+echo hola | grep hola | wc -c
+
+💥el mismo caso pero con y sin pipes:
+✅ export VAR4=hello | echo $VAR4
+export VAR1=hello 
+echo $VAR1
+
+💥builtin - pipe- builtin💥
+✅ export VAR3=test | grep test
+✅ export VAR4=$USER
+✅ echo $VAR4
+✅ export PATH=$PATH:/custom/bin | cat
+✅ VAR5=hello | echo $VAR5
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌──  eliminacion de tokens vacios de args
+🔁command vacio
+✅ ""
+✅ ''
+✅ "\0"
+✅ "              "
+✅ '             '
+✅ $NO_EXISTE
+
+🔁arg vacio
+✅ rm					-> rm: missing operand
+✅ rm $NO_EXISTE		-> rm: missing operand
+✅ rm ""				-> rm: cannot remove '': No such file or directory
+✅ rm ''				-> rm: cannot remove '': No such file or directory
+✅ rm ''''			-> rm: cannot remove '': No such file or directory
+✅ rm "''"			-> rm: cannot remove '': No such file or directory
+✅ rm "$NO_EXISTE"
+✅ echo ''
+✅ echo $USERS
+✅ cat ''
+✅ ls | grep ''
+✅ ls | grep $NO_EXISTE
+✅ ls | grep temp_file.txt
+✅ ls | wc $NO_EXISTE
+✅ ls | wc "$NO_EXISTE"
+✅ ls | wc '$NO_EXISTE'
+✅ ls | wc ''
+
+✅ cat << ls
+> $NO
+> ls
+
+✅ cat << ls
+> "$NO"
+> ls
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── 💮💮testeo de get_path_execve.c 💮💮──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+# --- Tests para handle_access_errors y validate_executable ---
+
+# 1. Archivo que no existe (stat(cmd, &info) == -1)
+✅ ./no_existe
+✅ /noexistecomando
+✅ ../noexistecomando
+
+# 2. Es un directorio (S_ISDIR(info.st_mode))
+✅ /tmp
+✅ /usr
+
+# 3. No tiene permisos de ejecución (access(cmd, X_OK) == -1)
+touch ./no_exec_file && chmod 644 ./no_exec_file && ./no_exec_file
+echo "echo hola" > ./script_sin_exec && chmod 644 ./script_sin_exec && ./script_sin_exec
+# 4. Comando válido relativo (con ./)
+echo "echo hola" > ./script && chmod +x ./script && ./script
+# 5. Comando válido absoluto
+✅ /bin/ls
+✅ /usr/bin/env
+✅ /usr/bin/pwd
+# 6. No existe pero tiene formato relativo o absoluto (debería ir a handle_access_errors)
+✅ ./este_no_existe.sh
+✅ ../otro_no_existe
+# 7. Directorio con permisos pero que no es ejecutable
+mkdir ./no_exec_dir && chmod -x ./no_exec_dir && ./no_exec_dir
+
+# --- Tests para get_executable_path ---
+# 8. Entrada vacía o nula
+✅ '' # <- Esto simula un token vacío
+✅ "   " # <- Espacios solamente
+# 9. Comando no encontrado en PATH
+✅ comandoxyz
+✅ inexistentecomando
+# 10. Comando válido en PATH
+✅ ls
+✅ whoami
+✅ env
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── 💮💮testeo de void exec_cmd(t_all all, t_program *program)💮💮──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+💮💮command not found -> 127💮💮
+
+✅ echo"ho "la 		→ ❌ BASH_ERROR: → echoho la: command not found  → 127
+✅ echo"ho " la 		→ ❌ BASH_ERROR: → echoho : command not found  → 127
+✅ lalalal                 -> lalalal: command not found -> 127 
+✅ hola.sh               	  -> hola.sh: command not found -> 127
+✅ "|"                         -> |: command not found -> 127
+✅ '|'			                 -> |: command not found -> 127
+✅ '|!'
+✅ "'|'"
+✅ '"'|'"'
+✅ ls"|"wc -l  								SHELL_ERROR -> ls|wc: command not found
+✅ "ls""-l" |"wc -w"							SHELL_ERROR -> ls|wc: command not found
+✅ ls'<<'-l
+✅ ls '<<' -l
+✅ ls '|' wc -l
+✅ ls'|'wc -l
+✅ ls|'|'|wc -l 
+✅ "ls|wc -l"
+✅ 'hola      3>&1," 4>&3       '
+✅ "<<< EOF"    
+✅ "<<<"EOF    
+✅ $
+✅ $$ 
+✅ $_
+
+💮💮ejecuta con l_e_status == 0💮💮
+✅ ./dev/test/testeando_mini/test_ejecutable.sh 
+✅ ./hola.sh               ->  -> 0		 ->	(archivo .sh con permisos)
+✅ './hola.sh'             ->  -> 0
+✅ "./hola.sh"             ->  -> 0
+✅ ./minishell             ->  -> 0
+✅ ./mini'sh'ell           ->  -> 0
+✅ ./mini"shell"           ->  -> 0
+✅ ./dev/test/testeando_mini/test_ejecutable.sh  echo hola
+✅ ./minishel ./minishell
+
+🚩 revisar last_exit_status 126 y 127 :
+💮💮No such file or directory -> 127💮💮
+./no_existesh           -> bash: ./hola_1sh: No such file or directory -> 127 ->  ❌-> revisar last_exit_status sale 126, no se por que
+✅ $PATH					 -> bash: $PATH: No such file or directory -> 127 -> ❌-> revisar last_exit_status sale 126, no se por que
+✅ ls "|" wc -l								SHELL_ERROR -> ls: cannot access '|': No such file or directory + ls: cannot access 'wc': No such file or directory
+✅ ls '|' wc -l								SHELL_ERROR -> ls: cannot access '|': No such file or directory + ls: cannot access 'wc': No such file or directory 
+✅ ./test_ejecutable.sh 
+✅ test/testeando_mini/test_ejecutable.sh
+✅ grep "hello" < dev/test/test_files/file.txt 
+
+💮💮"casos raros": 🚩SHELL_ERROR: -> 1 💮💮
+🚩 ls > /test/test_outputs/list_test.txt -> bash: /test/test_outputs/list_test.txt: No such file or directory 🚩SHELL_ERROR: -> 1
+✅ <$													SHELL_ERROR -> -bash: $: No such file or directory			🚩SHELL_ERROR: -> 1			
+✅ <+													SHELL_ERROR -> -bash: +: No such file or directory    		🚩SHELL_ERROR: -> 1			
+✅ <-													SHELL_ERROR -> -bash: -: No such file or directory    		🚩SHELL_ERROR: -> 1		
+✅ <!													SHELL_ERROR -> -bash: !: No such file or directory    		🚩SHELL_ERROR: -> 1	
+✅ <&													SHELL_ERROR -> -bash: !: No such file or directory    		🚩SHELL_ERROR: -> 1	
+
+💮💮"casos raros": 🚩SHELL_ERROR: -> 2 💮💮
+✅ grep "|" testeo.txt	 													🚩SHELL_ERROR: -> 2
+✅ grep '|' testeo.txt	 													🚩SHELL_ERROR: -> 2
+✅ ls > dev/test/testeando_mini/test.txt ./hola.sh	 						🚩SHELL_ERROR: -> 2
+✅ ls "|" wc -ls															🚩SHELL_ERROR: -> 2
+		ls: cannot access '|': No such file or directory
+		ls: cannot access 'wc': No such file or directory
+✅ grep "hello" "<" test/test_files/file.txt								🚩SHELL_ERROR: -> 2
+		grep: <: No such file or directory
+		grep: test/test_files/file.txt: No such file or directory
+✅ ls > dev/test/testeando_mini/test_1.txt "&&" ./hola.sh					🚩SHELL_ERROR: -> 2
+	ls: cannot access '&&': No such file or directory
+	ls: cannot access './hola.sh': No such file or directory
+✅ ls /noexiste '&' > dev/test/testeando_mini.log							🚩SHELL_ERROR: -> 2
+	ls: cannot access '/noexiste': No such file or directory
+	ls: cannot access '&': No such file or directory
+
+💮💮Is a directory-> 126 💮💮
+✅ ./dev                  -> bash: ./test: Is a directory-> 126 
+
+💮💮Permission denied  -> 126💮💮
+✅ ./dev/test/testeando_mini/file_without_permisions.sh ->  bash: argv: Permission denied  -> 126 (archivo .sh sin permisos)
+✅ ./hola_1.sh             
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── ./ejecutable SOLO O CON OTROS COMANDOS: VER ORDEN TAMBIEN ──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+✅ ls > list.txt
+✅ << LA << $LS
+✅ ls > dev/test/testeando_mini/list_test.txt
+✅ cat dev/test/testeando_mini/list_test.txt
+✅ ls>>>/test/testeando_minis/list_test.txt  
+✅ grep "hello" < dev/test/testeando_mini/file.txt
+✅ echo "Hello, world!" > "dev/test/testeando_mini/outputfile.t"xt
+✅ cat "dev/test/testeando_mini/outputfile.t"xt
+✅ cat<dev/test/testeando_mini/file.txt
+✅ cat ls << -l
+✅ 'ls' "|" 'wc' "-l"
+✅ "ls" | "wc" "-l"						-> ["ls"][|]["wc]["-l"]
+✅ "ls""|""wc" "-l"						-> ["ls""|""wc]["-l"]
+✅ "ls" "|" "wc" "-l"						-> ["ls"]["|"]["wc"]["-l"]
+✅ 'ls' "|" 'wc' "-l"						-> ['ls']["|"]['wc']["-l"]
+✅ echo' hola "mundo"loco'ls				-> [echo' hola "mundo"loco'ls] 
+✅ echo "ho'l'a" 					✅ debe dar:echo ho'l'a
+✅ echo "hola" "'mu''ndo'" ✅ debe dar: hola 'mu''ndo'
+✅ "ls''-l" 			✅ debe dar: ls''-l
+✅ 'ls""-l' 			✅ debe dar: ls""-l
+✅ echo "mu"n"do" 		 debe dar: echo mundo
+✅ hola'mundo'			✅ debe dar: holamundo
+✅ h'ol'a 				✅  debe dar: hola 
+✅ hola'mundo' 			✅debe dar: holamundo
+✅ "ls''-l"			 ✅ debe dar:  ls''-l
+✅ 'ls""-l'			 ✅ debe dar: ls""-l
+✅ "ls' '-l"			✅ debe dar:  ls' '-l
+✅ "ls""-l" 			✅ debe dar: ls-l
+✅ "wc""-w" 			✅ debe dar: wc-w
+✅ 'ls''-l' 			✅ debe dar: ls-l
+✅ 'wc''-w' 			✅ debe dar: wc-w
+✅ 'ls""-l' 			✅ debe dar: ls""-l
+✅ 'ls" "-l' 			debe dar: ls" "-l: command not found
+✅ "ls""-l" | "ws""-w" 		debe dar: [ls-l] ➜ [|] ➜ [ws-w]
+✅ 'ls''-l' ls 			-> ['ls''-l'][ls] 		(hay espacio 2 split)
+✅ 'ls''-l'ls 				-> ['ls''-l'ls] 			(no hay espacio 1 split)
+✅ ls -l | grep "c"
+✅ ls | grep .c | wc -l
+✅ ls | grep .txt | cat -e
+✅ ls | grep .txt | xargs cat
+✅ ls | grep .txt | xargs wc -l
+✅ ls | grep "check"
+✅ (echo "Hola"; echo 'loco'; echo "Mundo") | sort
+✅ <<+
+✅ >$
+✅ >+
+✅ >- + cat - (debe fallar)
+✅ > $USER
+✅ > '$USER'
+✅ > "$USER"
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+✅ sort < unsorted.txt > sorted.txt 
+✅ sort<unsorted.txt>>sorted.txt 
+✅ sort<unsorted.txt>><sorted.txt 
+✅ sort < unsorted.txt "'>'" sorted.txt                          
+✅ grep "pattern" < sorted.txt | sort        
+✅ echo "append this">>>logfile.log
+✅ cat < sorted.txt | head -n 5     
+✅ cat<sorted.txt|head -n 5     
+✅ cat<sorted.txt'|'head -n 5    
+✅ echo "hello>>>file.txt" 
+✅ echo>>"hello>>file.txt"     
+✅ cat<file.txt   
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── Manejo de archivos y directorios: ──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+✅ touch testfile 
+✅ mkdir testdir 
+✅ rm testfile 
+✅ rm file1 file2 file3 				(rm puede tener mas de 1 arg)
+✅ rmdir testdir 
+✅ echo "Hello" > file.txt 
+✅ touch test_exec.sh
+✅ chmod +x test_exec.sh
+✅ ls -l test_exec.sh
+✅ rm test/test_files/file.txt
+✅ ls "file>>hola" 
+✅ sleep 10 | ls -l
+✅ env | grep $USER | wc -l
+✅ cat < file > newfile.txt						
+✅ cat newfile.txt
+✅ wc -l < file 									
+✅ wc -l < "file" 								
+✅ wc -l < 'file' 								
+✅ wc -l< file 									
+✅ wc -l <file 									
+✅ wc -l<file 									
+✅ wc-l<file										SHELL_ERROR -> wc-l: command not found
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅•ejecucion con here-doc•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+✅ tee archivo1.txt archivo2.txt << ls
+✅ sed 's/a/@/g' << ls
+✅ grep "ERROR" << ls
+✅ echo << ls
+✅ cat << ls > mensaje.txt
+✅ sort << ls > sorted.txt
+✅ cat<<ls|grep "example"
+✅ cat<<ls|grep $USER
+✅ cat<<ls << la|grep $USER
+✅ cat << ls | wc -w
+✅ cat << ls | tr '[:lower:]' '[:upper:]'
+✅ cat << ls | sort
+✅ cat << ls | column -t
+✅ cat << ls |  grep $USER | wc -w
+✅ cat <<ls <<la
+✅ cat <<ls <<la | wc -w
+✅ cat <<ls <<la | grep a | wc -l
+✅ << ls | ls
+✅ << ls | echo hola
+✅ ls | wc -l
+✅ ls | wc -w
+✅ < file | wc -l
+
+--------------------------------------------
+✅ 'echo holamundo|hola'
+✅ 'echo holamundo"|"hola'
+✅ echo "hello_word">>file.txt
+✅ echo "hello_word2">>file.txt 
+✅ echo "hello">>>file.txt 
+✅ echo "hello">>>>>file.txt   
+✅ echo "hello" > file
+✅ echo "hello > test/file".txt
+✅ echo "Hello" > "dev/test/testeando_mini/testeo.txt"                
+✅ echo "Hello" > 'dev/test/testeando_mini/testeo.txt'       
+✅ echo "Hello">"dev/test/testeando_mini/testeo.txt" 
+✅ echo "Hello" ">" testeo.txt 
+✅ echo "Hello" '>' testeo.txt 	
+✅ echo "Hello"'>' testeo.txt 
+✅ echo "Hello"">" testeo.txt 
+✅ echo "Hello" | grep H
+✅ echo "Hello" | grep "H"
+✅ echo "Hello"|grep "H"
+✅ echo "Hello"|'|'grep "H"
+✅ echo hola | wc -l 
+✅ echo "Minishell test" | tr 'a-z' 'A-Z'
+✅ echo "Hello World" | tr ' ' '\n' | sort
+✅ echo "Hello World" | tr ' ' '\n' | grep "o"
+✅ echo "Hello" | cat | grep "H" | wc -l
+✅ echo "line1\nline2" | grep line2
+✅ echo "Hello" | cat | cat | cat
+✅ echo "multi-line" | tee output.log | cat           
+✅ echo "hola mundo" | tr 'a-z' 'A-Z' | rev
+✅ echo "hola mundo" | rev
+✅ echo "hola mundo" > output.txt
+✅ cat output.txt
+✅ cat < output.txt
+✅ echo "hola" > file1.txt > file2.txt
+✅ cat < output.txt | grep hola
+✅ echo "test" | grep
+✅ << ls | << la
+✅ ls | << ls
+✅ cat << LS | grep "data"
+✅echo hola ./hola.sh                                                                                
+✅echo ./hola.sh hola mundo 
+✅ ls>salida.txt 1269'<>file.txt' 
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅• here-doc•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+✅ echo << LIMITER
+✅ cat<<END>>testfile.txt
+✅ << L'S'
+✅ << L"S"
+✅ e'cho' hola | w"c" -w 
+✅ cat file | sort 
+✅ rm file5
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── gestion de errores pipes/ejec/built ─╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+si:
+	✅ echo "Hello" | cat | grep "H" | wc -l
+error:
+
+	✅ echos "Hello" | cat | grep "H" | wc -l
+	✅ echo "Hello" | catt | grep "H" | wc -l
+	✅ echo "Hello" | cat | greep "H" | wc -l
+	✅ echo "Hello" | cat | grep "H" | wwc -l
+	✅ echos "Hello" | catt | grepp "H" | wc -ll
+
+
+si 
+	✅ echo hola | wc -w
+error
+	✅ echosss hola | wc -w
+	✅ echo hola | wcss -w
+	✅ echo hola | wc -wss
+	✅ echo hola | wc -w -jasdj
+	✅ echoss hola | wcss -w -jasdj
+
+si
+	✅ grep "pattern" < input.txt | wc -l
+
+si
+	✅ grep "pattern" < input.txt | grep 
+error
+	✅ grep "pattern" < input.txt | sort		 [no existe arch]
+	✅ grep "pattern" < input.txt | sortsss		 [no existe arch]
+	✅ grep "patternssss" < input.txt | sort
+	✅ grep "pattern" < input.txt | sortsss
+	✅ grepppp "pattern" < input.txt | sortsss
+
+//--------------------------------------------PIPES Y REDIRS--------------------------------------------
+✅ ls -l > dev/test/testeando_mini/filelist.txt     
+✅ cat dev/test/testeando_mini/filelist.txt 
+✅ ls -l | > list
+✅ ls -l | grep "sh" > list
+✅ ls -l'|'> list    
+✅ env | cat << ls | cd dev (sin sentido)
+✅ ls | grep c > output.txt
+✅ cat output.txt
+✅ < file grep hola | wc -c > file_test
+✅ cat << EOF | sed 's/usuario/admin/g' > usuarios.txt
+✅ cat << EOF | grep "pattern" > output.txt
+✅ cat<<EOF | grep "pattern" < input.txt | sort 
+✅ cat<<EOF | grep "pattern" < input.txt | sort >out
+✅ cat <<END > testfile.txt
+✅ cat <<END | wc -l > testfile.txt
+✅ cat testfile.txt
+✅ ls | wc -l > file
+✅ ls > file | wc -l
+✅ ls > file | wc -l > file2
+✅ echo "hola mundo" | tr 'a-z' 'A-Z' | rev > file_test
+✅ cat file | sort > sorted
+✅ echo "hola" | cat > output.txt
+✅ cat output.txt
+✅ cat file_test
+✅ echo "hola mundo" | tr 'a-z' 'A-Z' | rev > file_test
+✅ echo "hola mundo" | tr 'a-z' 'A-Z' > file2 | rev > file_test
+✅ echo "hola mundo" > file1 | tr 'a-z' 'A-Z' > file2 | rev > file_test
+✅ echo "hola mundo" | rev > file_test
+✅ cat < output.txt | grep hola > test_file
+✅ echo "test" | grep > file
+✅ echo hola | cat << ls << la
+✅ < file grep "$USER" | wc -l > newfile.txt 	
+✅ < file grep $USER | wc -w > newfile.txt
+✅ < file grep $USER | wc -l > newfile.txt
+✅ < file grep $USER | wc -c > newfile.txt
+✅ grep $USER < file | wc -l > newfile.txt
+✅ grep $USER < file | wc -w > newfile.txt
+✅ ls | grep c > salida.txt
+✅ cat < file | grep main.c >> resultado.txt
+✅ echo test > resultado.txt
+✅ cat < resultado.txt | grep test > out.txt
+✅ cat < resultado.txt | grep test | wc -l > out.txt
+✅ cat < nofile.txt | grep test
+✅ ls | grep temp_file.txt > out.txt
+✅ echo hola > out1.txt > out2.txt
+✅ cat file | grep "loco" | wc -l > count.txt               
+✅ cat file | grep "loco" | wc -w >> count.txt               
+✅ cat file |  grep "loco" | wc -l > count.txt
+✅ cat file | grep "loco"  | sort | uniq > output.txt               
+✅ cat < file | grep "pattern" | sort | uniq > output.txt               
+✅ cat < output.txt | wc -l
+✅ cat file_noexist | grep "loco"  | sort | uniq > output.txt
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆ tokenizacion y ejecucion reajuste asignacion type ⋆➣╌╌──  ─╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+👾 [redir_l_u (<)]:
+✅   command  < path_name arg 						    	-> grep < file $USER   			❌ -> (falla ejecucion pattern: command  < path_name arg)
+✅   comando < path_name > path_name arg				-> grep < file > file2 $USER   	❌ -> (falla ejecucion pattern: command  < path_name arg)
+✅   comando < path_name | comando 						-> cat < file | wc 
+✅   comando < path1 < path2								    -> cat < file < file2
+✅   comando < path1 << LIMITADOR							-> cat < file << ll
+✅   comando < path_name 									        -> cat < file
+✅   comando < path_name | comando 	arg					  -> cat < file | wc -l
+✅   comando agr < path_name | comando arg				  -> grep "hello" < file | wc -l
+✅ 			< path_name          						          -> < file
+✅ 			< path_name  > path_name comando arg 		  -> < file > b.txt grep $USER
+✅ 			< path_name  comando 						          -> < file wc
+✅ 			< path_name  comando arg 					        -> < file grep $USER
+✅ 			< path_name  comando > path_name    		  ->  < file ls > b.txt
+✅   		< path1 < path2								            -> < file < file cat
+✅   		< path1 << LIMITADOR						          -> < file << EOF cat
+✅ 			< path_name  comando | comando				    -> < file grep hola | wc -l
+✅ 														                    -> < file grep hola | wc -w
+✅ 														                    -> < file grep hola | wc -c
+✅                                              < testeo.tx grep hola | wc -w
+✅			< path_name  comando | comando 				-> < file grep hola | wc -w          -> se para en exit_shell y deberia dar 0
+✅ 			 < path_name  | comando 					->  < file | wc					               -> revisar los printf de testeo, puedes altewrar el resultado
+✅														-> < file | wc -wc				                          -> revisar los printf de testeo, puedes altewrar el resultado
+✅														-> < file | wc -l 				                          -> revisar los printf de testeo, puedes altewrar el resultado
+
+👾 [redir_r_u (>)] y [redir_r_d (>>)]:
+
+✅  comando > path_name arg							  -> ls > file main.c			❌ -> (falla ejecucion pattern: command  > path_name arg)
+✅   comando > path_name arg							-> grep > file hola		❌ -> se queda pillado		❌ -> (falla ejecucion pattern: command  > path_name arg)
+✅   comando > path_name arg							-> echo hola > file adios 	❌ -> (falla ejecucion pattern: command  > path_name arg)
+✅  comando > path_name arg								-> ls > file -1	 			❌ -> (falla ejecucion pattern: command  > path_name arg)
+✅   comando > path_name arg							-> ls > file -l				❌ -> (falla ejecucion pattern: command  > path_name arg)
+✅   comando > path_name arg							-> cat > file texto			❌	-> se queda pillado en exec
+✅   comando > path_name arg							-> pwd > ruta.txt datos	
+✅   comando > path_name arg							-> cd > log.txt carpeta1 		❌  -> revisar builtings cd
+✅   comando > path_name arg							-> export > env.txt VAR=1		❌  -> revisar builtings export
+✅   comando > path_name arg							-> echo mensaje > log.txt extra otro  		❌ -> (falla builting echo: command  > path_name arg)
+✅   comando > path_name arg							-> grep hola > resultados.txt archivo.txt	❌	-> se queda pillado en exec -> ❌ -> (falla ejecucion pattern: command  > path_name arg)
+✅   comando > path_name arg							-> echo hola mundo > output.txt seguido		❌ -> (falla builting echo: command  > path_name arg)
+✅   comando > path_name arg							-> ls -a > file final						❌ -> (falla ejecucion pattern: command  > path_name arg)
+✅   comando > path_name arg							-> echo mensaje > log.txt extra otro  		❌ -> (falla builting echo: command  > path_name arg)
+✅   comando > path_name arg							-> echo hola mundo > output.txt seguido		❌ -> (falla builting echo: command  > path_name arg)
+✅ comando > path_name < path_name					-> ls > testeo.txt < file
+✅ comando > path_name << EOF							  -> grep main.c > file << EOF
+✅ comando > path_name | command 						-> ls > file | wc
+✅   														          > file | wc 							❌ -> se queda pillado en exec
+✅ 			> path_name comando arg						->  > file echo hola 
+✅ 			> path_name < path_name						-> > file < testeo.txt cat
+✅ 			> path_name << EOF							-> cat < testeo.txt > file
+✅ 			> path_name | command 						-> > file << EOF grep hola
+
+👾 [redir_l_u (<)] y [redir_r_u (>)]:
+✅ 			< path_name  comando > path_name arg 		-> < file ls > b.txt testeo.txt
+
+👾 [redir_l_d (<<)]: HERE
+✅ comando << EOF 										-> cat << EOF
+✅ << EOF comando arg | comando						-> << EOF cat | wc -l
+✅ comando  << EOF arg     					-> grep << ls $USER
+✅ comando  << EOF arg							-> echo << ls hola mundo 
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── Manejo de procesos: ──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+✅ sleep 3 
+✅ sleep 1 | sleep 2 | sleep 3
+✅ ps | grep minishell
+✅ ps | grep make
+✅ kill -9 $(pidof minishell)
+✅ ./minishell -c "ls -l"  (revisar este comando????)
+✅ export PATH="" 
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌──  ─╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+✅ echo "hellofromfile4" >file1 >file2 > file3 >>file4 | cat <<ls << la < file4 
+✅ echo "hellofromfile4">file1>file2 >file3 >>file4 '|' cat <<eof<<"end"<file4
+✅ echo "hellofromfile4">file1>file2>file3>>file4| at <<eof << "end" <file4    
+✅ echo "hellofromfile4">file1>file2>file3>>>>>file4|cat <<eof << "end" <file4    
+✅ echo "hellofromfile4">file1>file2>file3>>>>>file4|cat <<eof << "end" <file4 <<$USER
+✅ rm file1 file2 file3 file4
+✅ echo "hellofromfile4">file1>file2>file3>>file4|cat <<eof << "end" <file4 <<$USER

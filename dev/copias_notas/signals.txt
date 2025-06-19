@@ -1,0 +1,50 @@
+void handle_signal(int signum)			//handler(int signum)
+{
+	if (signum == SIGINT)
+	{
+		g_signal = signum;
+		ft_putstr_fd("\n", STDIN_FILENO);
+		rl_on_new_line();
+		rl_replace_line("", 0);
+		rl_redisplay();
+	}
+}
+
+void set_signals(t_program *program)			//signal_handling(void)
+{
+	if (signal(SIGINT, handle_signal) == SIG_ERR
+		|| signal(SIGQUIT, SIG_IGN) == SIG_ERR)
+	{
+		ft_error(program, "signal error", NULL, 128 + SIGINT);
+		exit(EXIT_FAILURE);
+	}
+}
+
+void	handler_child(int signum)
+{
+	if (signum == SIGINT)
+	{
+		g_signal = signum;
+		ft_putstr("\n");
+		exit(0);
+	}
+}
+
+void	handler_herequote(int signum)
+{
+	if (signum == SIGINT)
+	{
+		g_signal = signum;
+		ft_putstr("^C");
+		rl_done = 1;
+	}
+}
+
+void	handler_builtins(int signum)
+{
+	if (signum == SIGINT)
+	{
+		g_signal = signum;
+		ft_putstr("\n");
+	}
+}

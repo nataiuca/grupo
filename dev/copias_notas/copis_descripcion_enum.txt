@@ -1,0 +1,26 @@
+typedef enum e_type
+{
+	temp,
+	command,
+	argument,
+	redir_l_u,
+	redir_l_d,
+	redir_r_u,
+	redir_r_d,
+	pipe_type,
+	path_name,
+	heredoc_delimiter
+}					t_type;
+
+/**
+temp 				->  temporal por defecto
+command				->  command
+argument 			->  argument
+redir_l_u   		->  redirection_left_unic 		== '<'
+redir_l_d   		->  redirection_left_double 	== '<<'
+redir_r_u   		->  redirection_right_double 	== '>'
+redir_r_d   		->  redirection_right_double 	== '>>'
+pipe_type 			->  pipe
+path_name			->  patern_name (echo hello > echo.out 		!=			echo some more data > ../../over.here)
+heredoc_delimiter 	->  (<< LIMIT)
+*/

@@ -1,0 +1,243 @@
+📌 PUNTO DE PARTIDA: Revisar comportamiento de `executor`.
+
+1. ✅ Validar entrada a `executor`
+   - ✅ Confirmar que `all.tokens` y `program` no son NULL.
+   - ✅ Verificar que `find_first_command()` devuelve un token válido de tipo `command`.
+   - ✅ construir args solo en caso de tener first_command -> casos en los que no tenemos comandos pero si redirreciones. 
+   - ✅ ifs para solo redirecciones, 1 comando/builting, pipes
+
+2. ✅ Validar preparación de argumentos
+   - ✅ Confirmar que `build_args()` llena correctamente `all.exec->args`.
+   - ✅ Verificar si `all.exec->args[0]` contiene el comando esperado.
+   - ✅ Confirmar que libera memoria previa (`ft_free_matrix()`).
+
+3. ✅ Contar correctamente los comandos y pipes
+   - ✅ Verificar salida de `count_type_tokens()` para `pipe_type` y `command`.
+   - ✅ Confirmar que `num_cmds` y `num_pipes` son correctos en todos los casos.
+
+4.0  ✅ exit o return depiendiendo si es padre o  hijo.
+  ✅ padre
+  ✅ hijo
+11. ✅ revisar error_and_return-> dan mucho dramas con la memoria -> define
+
+-------------------------------------
+4.0.1  ✅ #➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌──  eliminacion de tokens vacios de args
+   Necesitás distinguir si un token vacío proviene de:
+   1. expansión de variable → eliminar token si resulta vacío
+   2. comillas explícitas → preservar como token vacío literal
+   from_expansion = ftue; -> Si el token no estaba entre comillas, y la expansión da cadena vacía → no crear args
+   tokens->was_quoted = true; -> Si estaba entre comillas (ej: "$VAR" o '$VAR') → sí, crear args con "" y was_quoted = true
+-------------------------------------
+
+4.1 [ ] Ejecutar comandos sin pipes (proceso hijo sin pipes) -> falla valgrind
+   - [ ] comandos validos
+   - [ ] comandos "malos" -> ver error y valgring
+   - [ ] norma funciones:
+         - [ ] executor.c
+         - [ ] get_path_execve.c
+         - [ ] pipes.c
+         - [ ] redirs.c
+   - [ ] valgrind -> frees
+
+   - [ ] Si `num_pipes == 0`, asegurarse de que `execute_single_command()` entra correctamente.
+   - [ ] mensajes de error en los comandos solos
+   - [ ] Dentro de esta función:
+       - [ ] Verificar comportamiento de `apply_redirections()`.
+       - [ ] Confirmar si es builtin o execve.
+       - [ ] Si execve, testear `fork_and_execute_single_cmd()`:
+           - [ ] Confirmar que el hijo ejecuta correctamente `exec_cmd()`.
+           - [ ] Validar `get_executable_path()` y `execve()`.
+   - [ ] valgrind -> frees
+   - [ ] testeo
+
+4.2 ✅ Ejecutar builtings sin pipes (proceso padre sin pipes)
+   - ✅ exec_builtin() 
+   - ✅ is_builting() 
+   - ✅ TODAS LAS BUILTINS:  testear si program->last_exit_status = 0; altera resultado + return (0);
+
+   - ✅ cd()  
+         - ✅  cd + << ll -> no borra archivos temporales.
+         - ✅ cd -> procesosos padre con return e hijo con exit
+            - ✅ cd en proceso padre -> valgrind
+            - ✅ cd en proceso hijo -> valgrind
+         - ✅ cd -> bash: ,: No such file or directory -> cd , (corregir error_msg);
+   - ✅ echo() 
+   - ✅ env()
+         - [ ] revisar si estan bien los datos de env
+   - ✅ export() 
+         - ✅ enlazar $VARS con export
+   - ✅ unset()
+   - ✅ exit() 
+   - ✅ pwd()
+
+   - [ ] mensajes de error en los builtins solos
+   - [ ] valgrind -> frees
+   - [ ] testeo
+
+4.3  [ ] testeo + valgrind
+          - [ ]  Valgrind solo redirs
+          - [ ]  Valgrind solo execve
+          - [ ]  Valgrind solo builtins
+   - [ ] testeo comandos 
+   - [ ] testeo builtings
+   - [ ] VALGRIND A OK
+
+4.4 ✅ testear bien los here-doc, a veces no liberan los archivos temporales y no se por que. 
+
+-------------------------------------
+5. [ ] Ejecutar comandos con pipes
+   - [ ] Confirmar entrada a `executor_loop()`.
+   - [ ] Validar creación de pipes (`setup_pipes()`).
+   - [ ] Confirmar creación de hijos con `fork_command()`:
+       - [ ] Redirecciones (`apply_redirections()`).
+       - [ ] Configurar stdio (`setup_redirects()`).
+       - [ ] Ejecutar comando builtin o `exec_cmd()`.
+   - [ ] Confirmar cierre de pipes en padre (`close_unused_pipes_in_parent()`).
+   - [ ] Confirmar `wait_for_children()` recoge todos los hijos y actualiza `last_exit_status`.
+
+5.1. [ ] Ejecutar comandos con pipes y redirecciones
+   - [ ] si un hijo falla, el hijo termina con exit(failure_status)
+
+6. [ ] Limpieza final
+   - [ ] Confirmar cierre de todos los file descriptors (`close_fds()` y `free_pipes()`).
+   - [ ] Confirmar liberación de `all.exec->args` si es necesario.
+
+7. 🧪 DEBUGGING sugerido
+   - [ ] Activar logs `DEBUG:` en cada función clave.
+   - [ ] Confirmar valores intermedios: tokens, args, path, PID.
+   - [ ] Validar salidas de `execve()` y `waitpid()`.
+
+8. 🧼 ERRORES comunes a testear
+   - [ ] Comando que no existe.
+   - [ ] Comando sin permisos.
+   - [ ] Comando que es un directorio.
+   - [ ] Redirecciones inválidas.
+   - [ ] Pipes mal cerrados o duplicados.
+
+
+9. [ ] quitar tokens-> own_command -> se usa is_builting().
+10. [ ] here doc no libera con builtings los archivos temporales
+
+12. [ ] norma todo
+   - [ ] valfrind todo
+   - [ ] fts abiertos, pid abiertos, 
+-------------------------------------------------
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── malloc_parcer: ──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+    ├── parcer
+    │   ├── check_spaces_line.c  + _testeo_malloc
+    │   ├── check_spaces_line_utils.c  + ⚠️_testeo_malloc
+    │   ├── check_syntax_error_token.c ⚠️_testeo_malloc
+    │   ├── free_structs.c
+    │   ├── free_utils.c
+    │   ├── ft_split_with_quotes.c + ⚠️_testeo_malloc
+    │   ├── get_prompt.c + ⚠️_testeo_malloc
+    │   ├── init_list.c + ⚠️_testeo_malloc
+    │   ├── init_structures.c + ⚠️_testeo_malloc
+    │   ├── tokenizer_utils.c + ⚠️_testeo_malloc
+    │   ├── var_check_expand.c  + ⚠️_testeo_malloc
+    │   ├── var_expand_core.c  + ⚠️_testeo_malloc
+    │   └── var_lookup.c  + ⚠️_testeo_malloc
+
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── malloc_exec + builtins + env + args + redirecciones: ──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+------------------------------------------------------------------------------------------------------------------------------------
+	//FASE_3_V2
+	// 🔸  ✒ renderizar reenicio de line y los demas_reinicios en minishell_loop().
+		// 🔸  ✒  quitar break y hacer las fucniones de reinicio de line y lo demás. 
+		// 🔸  ✒  recisar fucniones que se usan o no: todo 
+		// 🚩_TESTEO_NORMA
+		// 🚩_TESTEO_TOKENIZACION
+		// 🚩_TESTEO_EJECUCION+BUILDINGS
+		// 🚩_TESTEO_SEÑALES
+		// 🚩_TESTEO_HISTORIAL
+		// 🚩_TESTEO_MEMORY_LEAKS 
+		// 🚩_DESCRIPCIONES_FUCNIONES
+
+
+
+-------------------------------------------------
+//1. Ejecución de Comandos (generales):
+	//parse_command() – Parsea la línea de comandos en estructuras útiles.
+	//execute_command() – Determina si es builtin o externo y lo ejecuta.
+	//fork_and_execve() – Maneja el fork() y llama a execve() si no es builtin.
+
+
+// 2. Builtins
+	//exec_builtin() 
+	//is_builting() 
+	//cd() 
+	//echo() 
+	//env()
+	//export()
+	//unset()
+	//exit() 
+	//pwd()
+
+// 3. Pipes
+	pipe(), dup2(), close()
+	Conexión entre stdout de un comando y stdin del siguiente
+	Recorrido de comandos en una pipeline con manejo de procesos hijos
+
+//4. Redirecciones
+
+
+
+
+//5. Path y execve()
+	Resolver comandos externos:
+	Buscar en $PATH
+	Comprobar permisos con access()
+	Armar path completo
+	Llamar a execve() con argv y envp
+
+
+//6. Gestión de Procesos
+	fork() y esperar hijos:
+	wait() / waitpid() para sincronización
+	Control de status (WIFEXITED, etc.)
+	Control de procesos en pipelines (varios hijos simultáneos)
+
+// 7. Variables de Entorno
+	Manejo de env, export, unset
+	Probablemente uses una lista ligada o tabla hash para las variables internas de entorno
+	Al llamar a execve(), convertir tus variables internas a char **envp
+
+//8. Restauración del Estado
+	Restaurar stdin / stdout después de redirecciones
+	Cerrar todos los pipes abiertos
+	Free de estructuras temporales
+
+
+//9. Errores y Señales
+	Mensajes de error (comando no encontrado, permisos, etc.)
+	Manejo de señales (SIGINT, SIGQUIT)
+	Evitar que el shell se cierre por Ctrl+C
+
+
+//SEÑALES:
+Ctrl-\         -> SIGQUIT -> Mata el proceso y hace un core dump (si está permitido). -> Quit (core dumped)
+ctrl-C         -> SIGINT (Signal Interrupt) -> imprime una nueva entrada en una línea nueva. -> ^C 
+ctrl-D         -> EOF (no señal) -> termina el shell. -> Cierra el shell si se presiona en vacío
+
+Ejemplo en el shell:
+   $              # Esperando input
+   <Ctrl-D>       # El usuario pulsa Ctrl-D
+   # Shell se cierra
+
+
+Ejemplo en cat
+   $ cat
+   hola
+   mundo
+   <Ctrl-D>        # Termina la entrada, `cat` finaliza y se imprime lo que escribiste
+   hola
+   mundo
+   $
+
+
+
+
+

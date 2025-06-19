@@ -1,0 +1,300 @@
+⚠️_PTE TESTEO
+❌_NO FUNCIONA
+✅_OK
+
+definitely lost: Memoria que fue reservada pero nunca liberada y ya no tienes cómo acceder a ella. ¡Esto es una fuga real!
+indirectly lost: Memoria accesible solo a través de punteros que ya están perdidos.
+still reachable: Memoria que aún está referenciada cuando el programa termina. No es una fuga crítica si se libera al final, pero sí es buena práctica liberarla.
+suppressed: Ignorada por reglas de Valgrind.
+
+//🔶still reachable:
+allocate_pipe_fds
+	==55354== 0 bytes in 1 blocks are still reachable in loss record 1 of 23
+	==55354==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+	==55354==    by 0x10FEC1: allocate_pipe_fds (ejecucion.c:585)
+	==55354==    by 0x10FFC4: setup_pipes (ejecucion.c:612)
+	==55354==    by 0x110B51: executor (ejecucion.c:1008)
+	==55354==    by 0x10B885: minishell_loop (minishell_loop.c:102)
+	==55354==    by 0x10BB0D: main (main.c:29)
+
+	
+init_meta_struct
+init_prompt_or_fail
+init_here_struct
+get_line_prompt
+init_exec
+init_list -> lista de tokens
+
+exec_cmd:
+	==54308==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+	==54308==    by 0x112B71: ft_strdup (in /home/mzolotar/42_School_temp_rep/copia_mini_borrador/minishell)
+	==54308==    by 0x10F69D: fill_args (ejecucion.c:354)
+	==54308==    by 0x10F75F: build_args (ejecucion.c:376)
+	==54308==    by 0x10FBEE: exec_cmd (ejecucion.c:523)
+	==54308==    by 0x11093E: fork_command (ejecucion.c:938)
+	==54308==    by 0x110A10: executor_loop (ejecucion.c:960)
+	==54308==    by 0x110B8D: executor (ejecucion.c:1013)
+	==54308==    by 0x10B885: minishell_loop (minishell_loop.c:102)
+	==54308==    by 0x10BB0D: main (main.c:29)
+
+	==54308== 
+	==54308== 16 bytes in 1 blocks are still reachable in loss record 9 of 23
+	==54308==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+	==54308==    by 0x10F73A: build_args (ejecucion.c:373)
+	==54308==    by 0x10FBEE: exec_cmd (ejecucion.c:523)
+	==54308==    by 0x11093E: fork_command (ejecucion.c:938)
+	==54308==    by 0x110A10: executor_loop (ejecucion.c:960)
+	==54308==    by 0x110B8D: executor (ejecucion.c:1013)
+	==54308==    by 0x10B885: minishell_loop (minishell_loop.c:102)
+	==54308==    by 0x10BB0D: main (main.c:29)
+
+==54308== 376 bytes in 1 blocks are still reachable in loss record 17 of 23
+==54308==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==54308==    by 0x11078B: allocate_matrix (ejecucion.c:880)
+==54308==    by 0x1107C0: env_list_to_matrix (ejecucion.c:893)
+==54308==    by 0x10FC1F: exec_cmd (ejecucion.c:526)
+==54308==    by 0x11093E: fork_command (ejecucion.c:938)
+==54308==    by 0x110A10: executor_loop (ejecucion.c:960)
+==54308==    by 0x110B8D: executor (ejecucion.c:1013)
+==54308==    by 0x10B885: minishell_loop (minishell_loop.c:102)
+==54308==    by 0x10BB0D: main (main.c:29)
+
+//🔶------------------------------ MALLOC -----------------🔶//
+//🔶----------------PROGRAM
+
+
+//🔶----------------PROMPT
+*prompt = malloc(sizeof(t_prompt));
+prompt->hostname = ft_strdup(hostname_raw);
+prompt->hostname = ft_strdup("unknown");
+
+//🔶----------------LINE
+
+
+//🔶----------------meta
+
+
+//🔶----------------exec
+exec->pipe_fds = malloc(sizeof(int *) * exec->num_pipes); ( en allocate_pipe_fds) -> 
+exec->pipe_fds[i] = malloc(sizeof(int) * 2); en allocate_single_pipe -> free_partial_pipes(exec, i);
+
+//🔶----------------HERE
+
+
+//🔶----------------TOKEN
+
+
+//🔶----------------TOKENS
+
+
+
+
+
+//🔶------------------------------ VALGRIND:: -----------------🔶//
+⚠️Revisar primero redirecciones. Y fd
+⚠️Here q no se cierra
+⚠️Añadir sani a makefile - En scripts
+⚠️revisar si se liberan los pipes 
+⚠️revisar si se cierran los fd
+⚠️revisar las redirecciones y los here. 
+⚠️revisar las funciones que menciona valgrind
+⚠️ revisar rutas de fallos de comandos
+⚠️revisar la norma y a ver si asi enconramos los fallitos de valgrind
+⚠️ revisar todo archivo ejecucion y los flujos 
+
+
+⚠️How to improve this:
+Review init, setup and free functions:
+Most "still reachable" blocks come from initialization functions like init_all_structs, init_meta_struct, init_prompt, init_here_struct, and environment-related functions like create_env_list.
+Free allocated structures on program exit:
+Make sure you have a function that cleans up all allocated data (e.g., linked lists, arrays, strings) before exiting the program.
+For dynamic strings and arrays:ft_strdup, ft_split, ft_substr, ft_strjoin return heap-allocated memory.
+Track all these allocations and free them when no longer needed.
+Pipes and file descriptors arrays:
+Allocations inside allocate_pipe_fds and setup_pipes must also be freed at program termination or after use.
+
+⚠️Quick checklist for cleanup:
+Add a "cleanup" function that:
+Frees the environment list (create_env_list allocations).
+Frees all linked list nodes created by add_node, init_list.
+Frees all strings duplicated by ft_strdup and allocated by ft_split.
+Frees arrays like pipes and command argument lists (allocate_pipe_fds, build_args).
+Frees prompt-related allocations.
+Frees here-doc related allocations (init_here_struct).
+Call this cleanup function in main before returning.
+
+⚠️
+void cleanup(t_shell *shell) {
+    free_env_list(shell->env);
+    free_token_list(shell->tokens);
+    free_pipes(shell->pipes);
+    free_prompt(shell->prompt);
+    free_here_docs(shell->here_docs);
+    // Free other dynamic allocations
+}
+
+
+
+//🔶------------------------------ Cambiado: -----------------🔶//
+//----------------- redirections -----------------//
+
+
+//----------------- Ejecucion -----------------//
+
+
+
+//----------------- Builtings -----------------//
+✅ reajustado exit, habia casos que fallaban. 
+❌ cd solo con una ruta relativa o absoluta
+❌ pwd
+❌ env sin opciones o argumentos -> no funciona con redirecciones y pipes: env | sort | grep HOME -> no gestiona pipes
+esta vercion coge las redirecciones:
+void	builtin_env(t_program *program, t_all all, t_tokens *cmd)
+{
+	t_tokens	*tmp;
+
+	tmp = cmd->next;
+	while (tmp && tmp->type != pipe_type)
+	{
+		if (tmp->type == argument && tmp->content && tmp->content[0] != '\0')
+		{
+			ft_putstr_fd("env: ‘", STDERR_FILENO);
+			ft_putstr_fd(tmp->content, STDERR_FILENO);
+			ft_putendl_fd("’: invalid argument", STDERR_FILENO);
+			return ;
+		}
+		tmp = tmp->next;
+	}
+	print_env(program->env, all.exec->outfile);
+}
+◦ export sin opciones.
+◦ unset sin opciones.
+
+//------------------ TESTEO ------------------//
+//----------- Ejecucion --------------//
+❌   ./ejecutable_con_permisos_ok.sh
+
+here_doc -> falla con cd -> no libera temporales 
+
+⚠️   command  > path_name arg 
+⚠️   command  < path_name arg 
+⚠️   command  >> path_name arg
+⚠️   command  << delimiter arg
+
+//----------- Builtings --------------//
+✅_PTE_TTO_ENERAL: echo con la opción -n.
+✅_PTE_TTO_ENERAL: exit sin opciones.
+❌ ◦ pwd sin opciones. -> redirecciones y pipes fallan
+❌ ◦ cd solo con una ruta relativa o absoluta. -> cd + here_doc falla y  fallos con mensajes de error + fallos de valgrind
+❌ ◦ env sin opciones o argumentos.
+-> env debe permitir estos casos:
+	 env > file 
+	 env >> file
+	 env << ls
+	 env | tee file.txt | wc -l
+	 env | tee file.txt | wc -w
+	 env | tee file.txt | wc -c
+	 env | grep home | tee file.txt
+	 env | sort | grep HOME
+	 env | grep PATH
+
+ -> env no debe permitir ninguno de estos:
+	env VAR1=val1
+	env VAR1=val1 VAR2=val2
+	env VAR1=val1 ls
+	env VAR1=val1 VAR2=val2 echo hola
+	env -i
+	env --ignore-environment
+	env -u VAR1
+	env hola
+	env foo=bar otra
+	env /bin/ls
+
+
+❌ export sin opciones.
+	❌ por que imprime env?
+	❌ por que -> Segmentation fault (core dumped) (ignored)
+	❌ por que fucnionan opciones que no deberian?
+	❌ por que no funcionan comandos que deberian: export
+	⚠️ no se pillan las variebles metidas por export -> sincronizar tokenizacion vars con env y export
+
+❌ unset sin opciones.
+	unset PATH:
+		-❌ sigue imprimirndo env  y debe dar: -bash: env: No such file or directory
+		-❌ error de bash incorecto si metemos comando tipo ls
+
+
+
+//🔶------------------------------ Corregir: -----------------🔶//
+
+❌1. reajustar ejecucion al cambiar las fucniones por la norma ya no coge todos los comandos que debe. CAMBIAR Y TESTEAR.
+		✅lalalal                 -> lalalal: command not found -> 127 
+		✅hola.sh                 -> hola.sh: command not found -> 127
+		❌./hola.sh               ->  -> 0		 ❌->	(archivo .sh con permisos)
+		❌'./hola.sh'             ->  -> 0
+		✅./minishell             ->  -> 0
+		❌./no_existesh           -> bash: ./hola_1sh: No such file or directory -> 127  ❌-> revisar last_exit_status sale 126, no se por que
+		✅./test                  -> bash: ./test: Is a directory-> 126 
+		✅./hola_1.sh             ->  bash: ./hola_1.sh: Permission denied  -> 126 (archivo .sh sin permisos)
+		❌./hola.sh echo hola     ->  -> 0
+
+❌2. correguir builting PWD:
+		✅ pwd >> file.txt
+		✅ pwd > out.txt 
+		✅ pwd > 
+		✅ pwd |
+		✅ pwd | cat                   # Muestra la ruta, pasada por pipe a cat
+		❌ pwd | cat > file.txt        # La ruta actual escrita en `file.txt`
+		❌ pwd | wc -c                 # Cuenta caracteres del path
+		❌ pwd | wc -l                 # Debe dar 1
+
+		touch file; chmod 444 file
+		❌ pwd > file                 # Bash: Permission denied -> last_exit_status = 1  . -> ❌ no pilla bien el error y el mensaje no corresponde
+
+		✅ (pwd)                     # debería funcionar si implementas subshells
+		❌ pwd | grep home | tee file.txt
+		❌ pwd > file.txt | cat file.txt   
+		❌ pwd | tee file.txt | wc -l
+		✅ pwd | grep "/" | cat          # Pipe con grep y cat
+		❌_. La norma. 
+		❌_. errores valgrind. 
+
+❌3. void exit_shell(t_program *program, t_all all, char *msg, int status) 
+	❌ cortregir los mensajes de error 
+	❌ revisar la ruta de ejecucion y las liberacions, con valgrind pasan cosas raras
+
+//🔶------------------------------ Valgrind: -----------------🔶//
+✅ echo + exit
+	✅ echo mundo << la << ls
+✅ exit
+	✅ exit << la << ls
+✅ pwd + exit
+	✅ pwd << la << ls
+	
+❌ cd 
+	✅ cd + exit -> falla con valgring -> reajustado
+	✅ cd + error de redireccion -> falla last_exit_status -> reajustado
+	✅ cd + redireccion sin error
+	✅ cd -> comandos incorrectos: corregido segun subject
+		✅ cd 
+		✅ cd -
+
+	❌ cd + here -> no elimina los temporales de here, pero si los elimina con exec-> wtf  -> 
+		❌ cd test/ << la << ls
+	❌ cd + error de redireccion -> falla mensaje de error debe llebar bash: ...
+	❌ cd + error de redireccion -> falla valgrind
+	❌ cd + error agd de cd ya no funciona cd. 
+	
+	
+	
+	
+
+export + exit
+unset + exit
+
+
+
+//🔶------------------------------ Revisar:-----------------🔶//
+⚠️ ft_putstr_fd("minishell: export: `", STDERR_FILENO);  // ⚠️ "minishell: " -> revisar el formato general de mini para poner o no poner mensaje minishell que haya coherencia a nivel global del proyecto
+⚠️ perror, ft_putendl_fd y todas las demas impresiones de mini simpre en INGLES -> NORMA. revisar cod ejec y builtings
+⚠️ void add_env_var_2(t_env **env, char *key, char *value) -> NORMA-> ternarios Not

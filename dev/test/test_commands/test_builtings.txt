@@ -1,0 +1,690 @@
+⚠️ -> testeo general con exec
+❓ -> diferente bash y mini -> no se gestionan los mismos operadores. 
+✅ -> igual bash y mini- > ok
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── 💥💥testeo builtings general💥💥─╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+----con mas datos ----------------------------------------
+✅ exit$USER
+✅ echo$USER
+✅ cd$USER
+✅ pwd$USER
+✅ env$USER
+✅ unset$USER
+✅ export$USER
+-----con comillas -> debe funcionar ---------------------------------------
+✅ ech"o" hola
+✅ c'd' dev
+✅ p"w"d
+✅ e"xpor"t VAR=$USER    -> echo $VAR
+✅ 'exi't 42
+✅ un"set" VAR
+✅ en''v
+----con redirecciones----------------------------------------
+✅ echo mundo << la << ls hola
+✅ exit << la << ls 42 25 26
+✅ pwd << la << ls > file
+✅ cd  << la << ls dev
+✅ env << la << ls > file
+✅ export << la << ls VAR=$USER
+✅ unset << la << ls VAR
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── 💥testeo builtings echo: ◦ echo con la opción -n. 💥─╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+------------------METACARACTERES NO PERMITIDOS DENTRO DE UN COMANDO--------------------------
+✅ ech#o hola 
+✅ ech #o hola
+✅ echo #hola 
+✅ echo#hola  
+✅ ech&&o hola
+✅ ech&o  hola    
+✅ ech|o   hola   
+✅ ech<o            
+✅ ech>o              
+✅ echo ~
+✅ ec~ho  ~
+----------------------ECHO CON VARS----------------------
+✅ echo "$VAR=|"								output: =|
+✅ echo '$VAR=|'								output: $VAR=|
+✅ echo "$VAR|"								output: |
+✅ echo '$VAR|'								output: $VAR|
+✅ echo "$VAR = |"								output: = |
+✅ echo '$VAR = |'								output: $VAR = |
+✅ echo "$VAR= |"								output: = |
+✅ echo '$VAR= |'								output: $VAR= |
+pipe abierto:
+✅ echo $VAR=|
+✅ echo $VAR|
+✅ echo $VAR = |  
+✅ echo $VAR= | 
+----------------------ECHO CON COMILLAS----------------------
+✅ echo "hola 'mundo' loco" 										-> [echo]["hola 'mundo' loco"]
+✅ echo 'hola "mundo" loco' 										-> [echo]['hola "mundo" loco']
+✅ echo 'hola "mundo" '|' loco' 									-> [echo]['hola "mundo" '|][' loco']
+✅ echo "'hola "mundo" '|' loco'" 									-> [echo]["'hola "mundo" '|' loco'"]
+✅ echo "hola ' mundo" 											-> [echo]["hola ' mundo"]
+✅ echo 'hola " mundo'												-> [echo]['hola " mundo']
+✅ echo "hola mundo loco" 											-> [echo]["hola mundo loco"]
+✅ echo 'hola mundo loco'											-> [echo]['hola mundo loco']
+✅ echo "hola" "mundo" 											-> [echo]["hola"]["mundo"]
+✅ echo "hola""mundo" && ls 										-> [echo]["hola""mundo"][&&][ls]
+✅ echo " hola 'mundo' loco " ls									-> [echo][" hola 'mundo' loco "][ls]
+✅ echo ' hola "mundo" loco'  ls									-> [echo][' hola "mundo" loco '][ls]
+✅ echo "Hello"">"testeo.txt
+✅ echo 'He said: "He"l" "lo"'
+✅ echo 'He said: "He"l"lo"'
+✅ echo  -n 'He said: "He"l"lo"'
+✅ echo 'He said: "He"llo"'
+✅ echo 'He said: "Hello!"'
+✅ echo 'Texto con escape '\'' dentro'    
+✅ echo "El archivo se llama \"archivo.txt\""    
+✅ echo "Texto con variable \$HOME dentro"    
+✅ echo "Texto con esc     "ape \" dentro"    
+✅ echo "Texto con 'comillas' dentro y \"dobles\" también"
+✅ echo "El archivo se llama \"archivo.txt    
+✅ echo "Texto con escape \" dentro    
+✅ echo "Texto con 'comillas' dentro y \"dobles también  
+echo "'Hola' \"Mundo\" 'Prueba' \"de\" 'comillas'"
+echo "Esto es un 'texto' con \"dobles\" y 'simples'"    
+echo "'Uno' 'Dos' 'Tres' \"Cuatro\" \"Cinco\""    
+echo "'Texto dentro de comillas' \"Más texto\" 'Y más'"    
+ echo "Combinando 'simples' y \"dobles\" correctamente"    
+ echo "'Un nivel' \"Otro nivel\" 'Otro más' \"Final\""    
+ echo "'Texto con \\\"escape\\\" de comillas dobles'"    
+ echo "\"Texto con \\\"escape\\\" de comillas simples 'correcto'\""    
+ echo "'Aquí va' 'una cadena' 'de' 'comillas' \"cerradas\""    
+ echo "'Esto es' \"una prueba\" 'con' \"muchas\" 'comillas'"    
+ echo "'Hola \"Mundo' 'Prueba \"de' comillas"   
+  echo 'Esto es un "texto" entre comillas'       
+ echo 'El archivo se llama 'archivo.txt'' 
+  echo 'Texto con "comillas dobles" dentro'       
+ echo "Texto con 'comillas simples' dentro"       
+ echo "Comilla simple cerrada correctamente: 'Hola'"       
+ echo 'Comilla doble cerrada correctamente: "Hola"'       
+echo 'Comilla simple dentro de comillas dobles: "O'Reilly
+✅ echo "<<<" EOF
+✅ echo "Hello"'|'grep "H"
+✅ echo hoa "  mundo"  loco
+✅ '   hola   ' "mundo     "    '"loco"     '       
+✅ echo     '   hola   ' "mundo     "    '"loco"     '       
+✅       echo     '   hola   ' "mundo     "    '"loco"     '  
+✅ echo "hola>>mundo"						          
+✅ echo "\|"									                                
+✅ echo \|
+✅ echo "|"						 			                              
+✅ echo '|'									                                                                                                  
+✅ echo "hola | mundo"							                                                                                                         
+✅ echo "hola < mundo"							                                                                                                         
+✅ echo "hola << mundo"						                                                                                                         
+✅ echo "hola >> mundo"						                                                                                                         
+✅ echo "hola > mundo"							                                                                                                         
+✅ echo "hola >> >> > mundo"							                                                                                             
+✅ echo "hola <<< mundo"							                                                                                         
+✅ echo "hola|mundo"						                                                                                               
+✅ echo "hola>>>>>mundo"
+✅ echo ""  hola""
+✅ echo ""hola""
+✅ echo '''$USER $HOMES '''
+--------------------------------------------
+✅ echo $? + $?
+✅ echo -n hola             → No imprime salto de línea (hola sin \n)
+✅ echo hola -n             → Imprime hola -n con salto de línea (porque -n no está al principio)
+✅ echo -nnnn hola          → Bash lo trata como -n válido → sin salto de línea
+✅ echo -n -n hola          → También válido → sin salto de línea (hola sin \n)
+✅ echo ----------n hola     → ----------n hola con salto de linea
+✅ echo -n -x hola          → Como -x no es una flag válida, debe imprimir -x hola con salto (después de interpretar -n)
+✅ echo -n                  → No imprime nada (ni salto)
+✅ echo                     → Imprime solo un salto de línea (\n)
+✅ echo ""                  → Imprime un salto de línea (salida vacía con \n)
+✅ echo ''
+✅ echo -n ""               → Imprime nada (ni texto ni salto)
+✅ echo -n hola mundo       → Imprime hola mundo sin salto
+✅ echo$?  
+✅ echo echo$? 
+✅ echo$USER
+
+💙 [redir path_name command]
+✅ > file echo hola unicornio
+✅ >> file echo hola unicornio
+✅ << ls echo hola
+✅ < file echo hola
+
+💙 [comando redir path_name arg]
+✅ echo mensaje > log.txt extra otro
+✅ echo hola mundo >> log.txt seguido
+✅ echo > file hola mundo loco 
+✅ echo > file hola $USER
+✅ echo hola y < file hola mundo
+✅ echo < file hola mundo
+✅ echo hola y << ls hola mundo
+✅ echo << ls hola mundo
+✅ cat  << ls echo hola mundo
+
+TABULACIONES:
+✅ echo \t													output: \
+✅ echo \\t												output: \\t
+✅ echo "\t hola" 											output: \t hola
+✅ echo "\\t hola" 										output: \\t hola
+✅ echo '\t hola' 											output: \t hola
+✅ echo '\t hola' 											output: \\t hola
+✅ echo "He said: \"Hello\""                                                            
+✅ echo \
+✅ echo "\t"                                                                                                      
+✅ echo "\"                                                    
+✅ echo '\'                                                    
+✅ echo \n                                                     
+✅ echo "\n"                                                   
+✅ echo '\n'                                                   
+✅ echo $USER
+✅ echo $"mundo"
+✅ echo $'mundo'
+✅ $_
+✅ echo hola hola hola mundo | grep ho
+✅ echo $'USER'
+✅ echo $US'ER'
+✅ echo $"USER"
+✅ echo $US"$ER"
+✅ echo '$USER'
+✅ echo ''$USER''
+✅ echo "$USER"
+✅ echo ""$USER""
+✅ echo "$U'S'ER"
+✅ echo '$U'S'ER'
+✅ echo "$US"E'R'
+✅ echo "'$USER'"
+✅ echo "''$USER''" 
+✅ echo '"$USER"'
+✅ e'c'ho '"$USER"'
+✅ echo \$USER
+✅ echo $\USER
+✅ echo $US\ER
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── Environment variables: ──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+✅ echo $HOME
+✅ echo $USER
+✅ echo $?
+✅ echo "Hola$USER"
+✅ echo "Hola     $USER"
+✅ cho "Hola     $   USER"
+✅ echo $USER y $HOME
+✅ echo $USER$HOME
+✅ echo $USER $HOME
+✅ echo $USER-$HOME
+✅ echo "$USER      -$HOME       "
+✅ echo "$USER      $HOME       "
+✅ echo $USER$HOME$PWD$SHELL$HOSTNAME$LANG$EDITOR 
+✅ echo $USER $HOME $PWD $SHELL $PATH $HOSTNAME $LANG $EDITOR 
+✅ echo $USER$USER$USER$USER$USER$USER$USER$USER$USER$USER$USER$USER$USER$USER$USER$USER$USER$USER$USER$USER$USER$USER$USER$USER$USER$USER$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATHecho $PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH
+✅ echo $PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATHecho$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH
+✅ $PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH
+✅ echo $PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH
+✅ echo $PATH $PATH $PATH $PATH $PATH $PATH$PATH$PATH$PATH$PATH$PATH
+✅ echo $PATH $PATH $PATH $PATH $PATH $PATH $PATH $PATH $PATH $PATH $PATH
+✅ echo $USER "$HOME" $PWD $SHELL '$PATH' ''$HOSTNAME'' $LANG ""$EDITOR""
+✅ $PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH 
+✅ $PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH$PATH
+🔹 ✒ no aplica a mini:
+✅ $*
+✅ $@
+✅ $#
+✅ $$
+✅ $-
+✅ $!
+✅ $0
+✅ echo$_
+✅ echo$$_
+✅ echo$*
+✅ echo$@
+✅ echo$#
+✅ cho$$
+✅ echo$-
+✅ cho$!
+✅ echo$0
+🔹 ✒ aplica a mini:
+✅ $
+✅ echo $
+✅ echo $$$           
+✅ echo $$$$$$$$$$$$$$$$ 
+✅ '$'
+✅ echo '$'
+✅ "$"
+✅ echo "$"
+✅ $_
+✅ echo $_
+✅ echo $·$
+✅ echo $·$·
+✅ echo $·$·$
+✅ echo$·$
+✅ echo$
+✅ echo $$ 
+✅ echo $2         
+✅ echo $"ls"     
+✅ echo $(algo)  $(algo) 
+✅ echo $(algo)$(algo) 
+✅ echo $[(algo)$(algo)] 
+✅ echo $[(algo)$USER] 
+✅ echo $USERS $HOMES
+✅ echo $USER $HOMES
+✅ echo $USERS $HOME
+
+✅ $_2=hola
+✅ echo $_2
+
+✅ $_2="hola"
+✅ echo $_2
+
+✅ echo ""USERS HOMES ""
+✅ echo ""$USERS $HOMES ""
+✅ echo ""$USER $HOMES ""
+✅ echo "$USER $HOMES "
+✅ echo ''$USER $HOMES ''
+✅ echo '''$USER $HOMES '''
+✅ ls ""-a -l -1""
+✅ rm ""file1 file""
+✅ echo $"ls"
+✅ echo $'ls'
+✅ echo $ls
+✅ echo $PWD
+✅ echo $SHELL
+✅ echo $PATH
+✅ echo $HOME
+✅ echo $LANG
+✅ echo $TERM
+✅ echo $EDITOR
+✅ echo $?
+✅ echo "El ultimo comando retorno: $?" 
+✅ echo 'El ultimo comando retorno: $?'
+✅ ls $HOME
+✅ echo $PATH                              -
+✅ echo $PATH$PATH$PATH$PATH$PATH$PATH   
+✅ echo $PATH $PATH
+✅ echo "Tu directorio actual es: $PWD"
+✅ echo '$PWD'
+✅ echo "Hola $USER, bienvenido!"
+✅ echo 'Hola $USER, bienvenido!'
+✅ echo "$SHELL es tu shell predeterminado" 
+✅ echo '$SHELL es tu shell predeterminado'
+✅ echo $SHELL es tu shell predeterminado
+✅ echo "Tu directorio actual es: $PWD"    
+✅ echo '$PWD'
+✅ echo $HOSTNAME 						//$HOSTNAME a menudo no está en env, sino que es una variable especial de Bash.
+//$RANDOM y $PPID son variables de shell generadas dinámicamente por Bash y no existen en env.
+✅ echo $RANDOM
+✅ echo "Numero aleatorio: $RANDOM"    ->🚩 revisar por que falla $RANDOM
+✅ echo "$PPID es el PID del padre"    ->🚩 revisar por que falla $PPID
+✅ echo $PPID
+✅ echo $RANDOM                      -> 🚩 
+✅ echo "Numero aleatorio: $RANDOM"  -> 🚩 
+//
+✅ echo "Hola $USER, bienvenido!"
+✅ echo 'Hola $USER, bienvenido!'
+✅ echo "$SHELL es tu shell predeterminado" 
+✅ echo '$SHELL es tu shell predeterminado'
+✅ echo "Ruta absoluta: $PWD/archivo.txt"
+//
+🔁 Expansión de Variables
+✅ echo "Tu usuario es: $USER"
+✅ echo "Tu directorio actual es: $PWD"
+✅ echo "El home es: $HOME"
+✅ echo "Shell en uso: $SHELL"
+✅ echo "Fecha actual: $(date)"
+//
+🔁 Variables de Entorno
+✅ echo "Tu ID de usuario es: $UID"
+✅ echo "Número de procesos abiertos: $PPID"
+✅ echo "Número de argumentos: $#"
+✅ echo "Todos los argumentos: $@"
+✅ echo "Código de salida anterior: $?"
+#•❅──────✧❅✦❅✧──────❅••❅──❅•OPERADORES NO PERMITIDOS DUPLICADOS•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+✅ echo "Texto para el descriptor 3" 3>&1 3>&1                                     
+✅ echo "Texto para el descriptor 3" 3>&13>&1                                     
+✅ echo "Texto para el descriptor 4" 3> 3> log.txt                                
+✅ echo "Texto para el descriptor 4" 4>> 4>> log.txt                              
+✅ echo "Texto para el descriptor 4" 4>> 4>>log.txt                               
+✅ echo "Texto para el descriptor 4" 4>>4>>log.txt                                
+✅ echo "Texto para el descriptor 4" 4>>4>> log.txt                                
+✅ echo "Texto para el descriptor 4" '4>> 4>>log.txt    '                             
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── 💥testeo builtings pwd: ◦ pwd sin opciones.💥──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+unset PWD
+pwd
+echo $?
+
+/usr/bin/pwd
+/bin/pwd
+./pwd
+
+.pwd >> file.txt
+✅ pwd > out.txt 
+✅ pwd > 
+✅ pwd |
+✅ pwd | cat                   # Muestra la ruta, pasada por pipe a cat
+✅ pwd | cat > file.txt        # La ruta actual escrita en `file.txt`
+✅ pwd | wc -c                 # Cuenta caracteres del path
+✅ pwd | wc -l                 # Debe dar 1
+
+touch file; chmod 444 file
+✅ pwd > file                 # Bash: Permission denied -> last_exit_status = 1  . -> ❌ no pilla bien el error y el mensaje no corresponde
+
+✅ (pwd)                     # debería funcionar si implementas subshells
+✅ pwd | grep home | tee file.txt
+✅ pwd | grep $USER | tee file.txt
+✅ pwd > file.txt | cat file.txt   
+✅ pwd | tee file.txt | wc -l
+✅ pwd | grep "/" | cat          # Pipe con grep y cat
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── 💥 testeo builtings exit: ◦ exit sin opciones. 💥─╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+✅ exit 1 2 3exit 123abs               -> bash: exit: too many arguments               -> 1
+✅ exit 1 2                            -> bash: exit: too many arguments               -> 1
+✅ exit 0 abc                          -> bash: exit: too many arguments               -> 1
+✅ exit 42 0                           -> bash: exit: too many arguments               -> 1
+✅ exit abc                            -> bash: exit: abc: numeric argument required    -> 2
+✅ exit +                              -> bash: exit: +: numeric argument required         -> 2
+✅ exit -                              -> bash: exit: -: numeric argument required         -> 2
+✅ exit +abc                           -> bash: exit: +abc: numeric argument required      -> 2
+✅ exit --1                            -> bash: exit: --1: numeric argument required       -> 2
+✅ exit 42abc                          -> bash: exit: 42abc: numeric argument required     -> 2
+✅ exit 3.14                           -> bash: exit: 3.14: numeric argument required      -> 2
+✅ exit "$NO"
+✅ exit $NO
+✅ exit ""                             -> bash: exit: : numeric argument required          -> 2
+✅ exit ''                             -> bash: exit: : numeric argument required          -> 2
+✅ exit xyz 123                        -> bash: exit: xyz: numeric argument required         -> 2
+
+✅ minishell$ ./minishell
+minishell> exit 42
+$ echo $?  # → debería decir 42
+
+✅ minishell$ ./minishell
+minishell> exit $?
+$ echo $?  # → debería decir val de $?
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── 💥testeo builtings cd: ◦ cd solo con una ruta relativa o absoluta.💥─╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+No debería expandir cd, cd ~, cd $HOME, o similares.
+Solo debe funcionar con: cd /ruta/absoluta o cd ruta/relativa
+El uso de cd sin argumentos (i.e. cd) no está permitido, o debe considerarse inválido en este contexto.
+
+❌ cd solo con una ruta relativa o absoluta. -> cd + here_doc falla y  fallos con mensajes de error + fallos de valgrind
+
+💥 CASOS VÁLIDOS:
+✅ cd dev/                        # ruta relativa a un subdirectorio
+✅ cd ./dev                       # ruta relativa a un subdirectorio
+✅ cd ./dev/test/test_files            # ruta relativa a un sub-subdirectorio
+✅ cd ..                           # ruta relativa al directorio padre
+✅ cd /tmp                         # ruta absoluta (si existe en tu sistema)
+✅ cd ./libft                      # ruta relativa a la carpeta de tu proyecto
+✅ cd ./dev/../copias_notas       # ruta relativa con navegación 
+
+💥 CASOS INVÁLIDOS (deberían fallar con tu minishell)
+✅ ~
+✅ ~/foo
+✅ cd                               #  no se permite sin argumento			->last_exit_status=1
+✅ cd -                             #  no se permite ir al OLDPWD			->last_exit_status=1
+✅ cd ~                             #  no se permite usar HOME				->last_exit_status=1
+✅ cd ~/copias_notas               #  el uso de ~ está prohibido			->last_exit_status=1
+✅ cd ./no_existe                  #  ruta relativa pero no válida			->last_exit_status=1
+✅ cd /ruta/que/no/existe          #  ruta absoluta pero inválida			->last_exit_status=1
+✅ cd ./test extra_argumento       #  más de un argumento					->last_exit_status=1
+
+
+
+✅ cd dev << aa 							❌- > no elimina los file temporales de here cuando la carpeta si existe
+✅ cd test/ << la << ls						❌ - > no elimina los file temporales de here cuando la carpeta si existe
+✅ cd test
+✅ cd ./libft << la << ls
+✅ cd /tmp << ls
+✅ cd .. << la << la
+✅ cd carpeta_invalida << ls << ls 			❌ - > liberas las carpetas temporales de here pero no da error de cd carpeta. 
+✅ cd carpeta_invalida > salida.txt		 	❌--> formato error revisar -> no da error de cd carpeta. 
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅•HERE-DOC•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+🔹 ✒ REVISAR: estros casos para fase 2
+✅ cd ..			-> dir anterior 
+✅ cd .			-> change directory to the current directory.
+✅ 🔹 ✒  << .. y << . y 	→ 🔹 va como here_delimiter: .. o .
+✅ 🔹 ✒  <<.. y <<. 	 	  → 🔹 va como here_delimiter: .. o .
+✅ cd << EOF ..              → 🔹 va como here_delimiter: .. o . y cd se ejecuta igual que si va sin nada: cd
+✅ cd << EOF..               → 🔹 va como here_delimiter: .. o . y cd se ejecuta igual que si va sin nada: cd
+✅ cd << EOF.                → 🔹 va como here_delimiter: .. o . y cd se ejecuta igual que si va sin nada: cd
+✅ cd << EOF .               → 🔹 va como here_delimiter: .. o . y cd se ejecuta igual que si va sin nada: cd
+💥 BUILTING + EJEC: Ejemplo válido pero inútil:
+✅ echo hola << la << ls
+✅ exit << la << ls 42
+✅ pwd << la << ls > file
+✅ cd carpeta_invalida					    ❌--> formato error revisar 
+✅ cd ../copias_notas               			❌--> # ruta relativa con doble punto ❌--> formato error revisar
+✅  cd ,                              		❌--> #  ruta relativa pero no válida			->last_exit_status=1  -> falla el mensaje de error sin bash
+✅  cd test < archivo.txt					    ❌--> formato error revisar + last_exit_status incorrecto (no existe archivo.txt)
+✅ cd dev < file							-> (existe file)
+✅ cd dev/ << la << ls
+✅ cd ../Documents
+1.
+✅ cd ~/.bashrc
+✅ cd /etc/hosts									-> cd: /etc/hosts: Not a directory
+2.
+✅ cd /ruta/que/no/existe							-> cd: No such file or directory
+✅ mkdir test_dir_perm && chmod 000 test_dir_perm
+✅ cd test_dir_perm								-> cd: Permission denied
+✅ chmod 755 test_dir_perm && rmdir test_dir_perm
+3.
+✅ mkdir test_dir && cd test_dir
+✅ rmdir ../test_dir 
+✅ cd .											-> cd: getcwd: No such file or directory
+3. revisar esto
+✅ mkdir test_dir && cd test_dir
+✅ rmdir ../test_dir << ll
+✅ cd .											-> cd: getcwd: No such file or directory
+3. revisar esto
+✅ mkdir test_dir && cd test_dir
+✅ rmdir -fr ../test_dir << ll
+✅ cd .											-> cd: getcwd: No such file or directory
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── 💥testeo builtings env: ◦ env sin opciones o argumentos.💥──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+💥NO permitido
+✅ env VAR=value     ❌ NO permitido
+✅ env foo=bar
+✅ env ls            ❌ NO permitido
+✅ env -i            ❌ NO permitido
+✅ env -a            ❌ NO permitido
+✅ env >file_env -ñ
+✅ env foo -> 				 error: `env: ‘foo’: No such file or directory`
+✅ env -x
+✅ env > file2 -x 
+✅ /usr/bin/env
+✅ /bin/env
+✅ ./env
+✅ /bin/env | grep PATH
+✅ ./env | grep PATH 
+✅ env | grep PATH 
+✅ unset PATH
+ls			-> debe fallar
+/bin/ls		-> debe ejecutarse
+
+💥env debe permitir estos casos:
+✅ unset PATH
+/usr/bin/ls 			-> debe ejecutarse
+/bin/ls 				-> debe ejecutarse
+./ls 					-> debe fallar
+
+✅ env
+✅ env > file 
+✅ env >> file
+✅ env << ls
+💥env datos de env de bash y env de mini 
+✅ env | tee file.txt | wc -l
+✅ env | tee file.txt | wc -w
+✅ env | tee file.txt | wc -c
+💥env  con pipes
+✅ env | grep home | tee file.txt
+✅ env | sort | grep HOME
+✅ env | grep PATH
+💥env no debe permitir ninguno de estos:
+✅ env VAR1=val1
+✅ env VAR1=val1 VAR2=val2
+✅ env VAR1=val1 ls
+✅ env VAR1=val1 VAR2=val2 echo hola
+✅ env -i
+✅ env --ignore-environment
+✅ env -u VAR1
+✅ env hola
+✅ env foo=bar otra
+✅ env /bin/ls
+✅ VAR1=hello
+✅ env  VAR1 no debe aparecer
+✅ /bin/printenv | grep USER
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── 💥testeo builtings unset: ◦ unset sin opciones.💥 ──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+✅ unset PATH
+✅ env | grep PATH  # no debe mostrar nada:
+	terminal:~$ unset PATH
+	terminal:~$ env
+	-bash: env: No such file or directory
+
+✅ unset PWD
+pwd
+echo $?
+
+export VAR1=holas VAR2 VAR3=$USER
+
+1. Comandos unset que deben funcionar:
+
+✅ export VAR1=holas VAR2=mundos VAR3=$USER
+✅ echo $VAR1 $VAR2 $VAR3
+✅ unset VAR1 VAR2  VAR3         # Elimina varias variables
+✅ echo $VAR1 $VAR2 $VAR3
+✅ unset _                   # Variables especiales (si están definidas)
+
+✅ export VAR=hola
+✅ echo $VAR
+✅ unset VAR
+✅ echo $VAR                # No debe imprimir nada
+
+2. Comandos unset que no deben funcionar
+✅ unset -v VAR             # Opción no soportada, debe fallar o ignorarse
+✅ unset -- VAR             # Opción no soportada
+✅ unset -f func            # Opción no soportada (para funciones)
+✅ unset -n VAR             # No soportado
+✅ unset 123abc             # Variable inválida, debería dar error
+✅ unset !@#                # Caracteres inválidos en nombre
+✅ unset                     # Sin argumentos, debería fallar o no hacer nada
+
+3. Comandos combinados con redirecciones y pipes (si tu minishell los soporta con unset)
+✅ unset VAR > output.txt       # Crea archivo vacío o con mensaje de error si lo hay
+✅ unset VAR | cat             # No debe imprimir nada
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── 💥testeo builtings export: ◦ export sin opciones💥.──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+✅ export VAR2=world
+✅ env | grep VAR2  # VAR2 sí debe aparecer
+
+✅ export VAR2=world_22
+✅ env | grep VAR2  # VAR2 sí debe aparecer
+
+✅ export VAR1=world_2
+✅ env | grep VAR1  # VAR2 sí debe aparecer
+
+✅ env > salida.txt
+✅ cat salida.txt
+
+✅ export VAR3=temporal 
+✅ env | grep VAR3
+
+✅ export VAR3=temporal
+✅ env | grep VAR3  # ahora sí debe aparecer
+
+⚠️ 1. Comandos export que deben funcionar:
+✅ export VAR=value
+✅ export VAR1=value1 VAR2=value2 VAR3=value3 VAR4=value4
+✅ export VAR1 =value1 VAR2= value2 VAR3 = value3 VAR4=value4
+✅ export VAR
+✅ export VAR1=hello VAR2 VAR3=world
+✅ export    # (sin argumentos) → lista de variables exportadas
+
+⚠️ 2. Comandos export que no deben funcionar:
+✅ export -n VAR 
+✅ export -p
+✅ export -- VAR
+✅ export -x VAR
+✅ export -f func
+✅ export VAR=val extra
+
+⚠️ Comandos combinados con redirecciones y pipes (si los permites con export)
+✅ export VAR=val | grep VAR     # produce salida vacía (export no imprime nada)
+✅ export | grep PATH            # ✔️ solo si `export` sin args está permitido
+
+⚠️ Extra: export combinado con otros builtins
+✅ export > file.txt             # guarda las variables exportadas
+✅ export VAR=1 > file.txt       # archivo vacío (export no imprime nada)
+
+✅ export VAR=1 | wc -c
+✅ export VAR=111111 | wc -c
+✅ export VAR=hola | wc -l
+✅ export VAR=hola | wc -c          # ❌ si tu `export` no tiene salida
+✅ export VAR=hola | wc -w
+
+✅ export TEST1=hello
+✅ echo $TEST1             # → hello
+
+✅ export TEST2=$TEST1
+✅ echo $TEST2             # → hello
+
+✅ export TEST32=a$TEST1b
+✅ echo $TEST32
+
+✅ export TEST3="a$TEST1b"
+✅ echo $TEST3             # → ahellob
+
+✅ export TEST4='$TEST1'
+✅ echo $TEST4             # → $TEST1
+
+✅ export VAR2=world
+✅ echo $VAR2
+
+✅ 1.
+echo $USER
+export USER=lala
+echo $USER
+unset USER
+echo $USER
+✅ 2.
+export VAR1=hola VAR2
+echo $VAR1  $VAR2
+echo  $VAR2 $VAR1 
+✅ 3.
+export MYVAR=42
+echo $MYVAR
+unset MYVAR
+echo $MYVAR
+✅ 4.
+export USER="unicornio"
+echo $USER
+unset USER
+echo $USER
+✅ 5.
+export USER=unicornio
+echo $USER 
+unset USER
+echo $USER
+✅ 6.
+ls $NO_EXISTE
+✅ 7.
+export USER='$HOME'
+echo $USER 
+unset USER
+echo $USER
+✅ 8.
+export USER="$HOME"
+echo $USER 
+unset USER
+echo $USER
+✅ 9.
+export USER=$HOME
+echo $USER 
+unset USER
+echo $USER
+✅ 10.
+export USER=$HOMES
+echo $USER 
+unset USER
+echo $USER

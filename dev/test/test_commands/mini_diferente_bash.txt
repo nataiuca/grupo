@@ -1,0 +1,552 @@
+
+💮💮resumen para defensa de cosas que son diferentes:💮💮
+
+
+SUBJECT:
+	no se gestiona 
+		/, #, ~, &&, &, ||, <<<, ;, 
+		expancion de vars varias
+		redirecciones numeradas
+		parentesis y corchetes varios
+		palabras reservadas, bucles, condicionales, etc.
+
+1. |' y '| se pilla como comillas abiertas y punto
+
+2. syntax error near unexpected token se gestiona sin abrir HERE_DOC (antes/despues)
+	cat << ls <
+	cat << ls << <<
+
+3. pipes abiertos van por error y punto, no espera otro comando
+
+4. numero de here limitado a: HERE_DOCS_MAX 10 
+
+5. expancion VARS -> getconf ARG_MAX
+	1. maximo de bytes a expandir rebajado a 6144 bytes. (PROMPT_SIZE 2048 x 3)
+	2. $$ -> no gestionamos $$ 
+
+6. all.line -> getconf ARG_MAX
+	1. maximo de bytes metido por linea de comndo rebajado a 6144 bytes. (PROMPT_SIZE 2048 x 3)
+
+7.<> -> diferente por que no gestionamos redirecciones de tipo: <>
+
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅•PARENTESIS NO AUTORIZADOS•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+✅    ls -l &{       
+✅'   echo hola {'           
+✅"{"           
+✅ls -l}       
+✅'}'           
+✅"    }   "           
+✅[       
+✅'   ['           
+✅"[    "           
+✅]                  
+✅'   ]'           
+✅"]   "           
+✅ echo hola ]    
+✅echo hola ' caracola loca]  o no'           
+✅"echo]hola"           
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅•VARIABLES•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•##•❅──────✧❅✦❅✧──────❅••❅──❅•VARIABLES•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+//VARS Y OTRAS EXPANCIONES_END----------------------------------------------------------
+	// ✅ meter codigo de SYNTAX_ERROR en $? (expantion of exit status) -> ver pasos_tokenizacion.txt
+	// ✅ ✒ revisar cada token de iz a derecha. y expandir cada var valida con $___ respetando los caracteres que no entrarn en var
+		// ✅ en cada token puede haber una o varias variables. 
+		// ✅ cada token puede tener caracteres diferentes de var, respetamos el caracter: echo $USER-$HOME -> user-dir
+		// ✅ cada token puede tener varios espacio, respetamos los espacios al expandir: echo "$USER      $HOME       "
+	// ✅ revisar variables con colillas y sin comillas y ' + " -> "'hola'" , etc. 
+		// ✒ SYNTAX_ERROR varible con caraacteres no permitidos:
+			// ✅ ✒ hacer idendificador de variables aqui: check_dolar_char -> check_is_valid_var->extract_var/expancion_var cuidado con $|(not_alow_oper)
+			// ✅ ✒ Expansión de la variable con el prefijo ${}: echo "Hola ${nombre}"
+			// ✅ ✒ Expansión de comandos con (): $(date)
+			// ✅ ✒ Expansión aritmética: echo $((5 + 3))
+			// ✅ ✒ Expansión de arreglos: array=("uno" "dos" "tres") -> echo ${array[1]}
+			// ✅ ✒ Expansión de comodines (Globbing: * → (*.txt), ? → (file?.txt), [] → (file[123].txt), {} → (file{1,2,3}.txt)) == wildcards)
+			// ✅ ✒ Funciones de shell: mi_funcion() { echo "¡Hola, mundo!"; }
+		// ✅ ✒ expancion de variables sin comillas y con "" o ''
+			// ✅ ✒ fucnion para identificar y extraer variable
+			// ✅ ✒ expancion de varieable
+				//revisar si token tiene o no tiene espacios para retoknizar
+					//revisar cuando se quitan las comillas
+					//con espacios - 
+					//sin espacios - 
+				// ✅ ✒ Expansión de variables (Variable Expansion)
+				// ✅ ✒ Expansión de parámetros (Parameter Expansion)
+				// ✅ ✒ Expansión de comandos:
+					// ✅ ✒ Expansión de comandos:
+					// ✅ ✒ Expansión de comandos con redirecciones
+						// ✅ ✒ Expansión de comandos con redirecciones permitidas
+						// ✅ ✒ Expansión de comandos con redirecciones no permitidas
+				// ✅ Expansión de la tilde (~) no se gestiona
+
+
+✅ 1. Definición y uso de variables
+nombre="Juan"
+echo $nombre   # → Juan
+mensaje="Hola, Mundo"
+echo "$mensaje"   # → Hola, Mundo
+✅ 2. Variables de solo lectura (readonly)
+readonly saludo="Hola"
+echo $saludo   # → Hola
+saludo="Nuevo mensaje"  # ❌ Error: no se puede modificar
+✅ 3. Variables de entorno (export)
+export MI_VAR="Variable de entorno"
+echo $MI_VAR  # → Variable de entorno
+✅ 4. Eliminar variables (unset)
+variable="Borrar esto"
+unset variable
+echo $variable  # → (Sin salida, la variable fue eliminada)
+✅ 5. Ver todas las variables de entorno
+✅ printenv   # Muestra todas las variables de entorno
+✅ env        # Similar a printenv
+✅ 6. Sustitución de variables en una cadena
+✅ ciudad="Madrid"
+✅ echo "Vivo en $ciudad"  # → Vivo en Madrid
+✅ 7. Valor por defecto si la variable no está definida (:-)
+echo ${usuario:-"Desconocido"}  # → Si 'usuario' no está definida, muestra 'Desconocido'
+✅ 8. Asignación por defecto si la variable no está definida (:=)
+echo ${nombre:="Anónimo"}  # Asigna 'Anónimo' si 'nombre' no está definida
+echo $nombre  # → Anónimo
+✅ 9. Comprobación de variable vacía (:?)
+echo ${nombre:?"Error: la variable 'nombre' no está definida"}
+(Si nombre no está definida, se muestra un error y el script se detiene).
+✅ 10. Obtener la longitud de una variable (#)
+cadena="Hola Mundo"
+echo ${#cadena}  # → 10
+✅ 11. Reemplazo de una parte de la variable (/ y //)
+frase="Me gusta Bash"
+echo ${frase/Bash/Linux}  # → Me gusta Linux (reemplazo de la primera ocurrencia)
+echo ${frase//a/A}  # → Me gustA BAsh (reemplazo de todas las 'a')
+✅ 12. Eliminar prefijos (# y ##)
+ruta="/home/user/documento.txt"
+echo ${ruta#*/}   # → home/user/documento.txt  (Elimina la primera "/")
+echo ${ruta##*/}  # → documento.txt  (Elimina todo hasta la última "/")
+✅ 13. Eliminar sufijos (% y %%)
+archivo="foto.png"
+echo ${archivo%.*}   # → foto  (Elimina la extensión, corta el primer ".")
+echo ${archivo%%.*}  # → foto  (Lo mismo en este caso)
+✅ 14. Extraer subcadenas (:posicion:longitud)
+texto="ABCDEFGHIJ"
+echo ${texto:3:4}  # → DEFG  (Extrae desde el índice 3, 4 caracteres)
+✅ 15. Variables en línea de comandos ($1, $2, ...)
+#!/bin/bash
+echo "Primer argumento: $1"
+echo "Segundo argumento: $2"
+(Ejecutando ./script.sh hola mundo → "Primer argumento: hola", "Segundo argumento: mundo").
+✅ 16. Contar argumentos pasados ($#)
+echo "Número de argumentos: $#"
+✅ 17. Mostrar todos los argumentos ($@ y $*)
+echo "Todos los argumentos: $@"
+echo "Todos los argumentos: $*"
+✅ 18. Último comando ejecutado exitosamente ($?)
+ls /home
+echo $?  # Si ls fue exitoso → 0, si falló → código de error
+✅ 19. PID del proceso actual ($$)
+echo "Mi PID es $$"
+✅ $20. PID del último proceso en segundo plano ($!)
+sleep 10 &
+echo "PID del último proceso en background: $!"
+✅ 21. Reemplazo de extensión en variables
+archivo="foto.png"
+echo ${archivo/.png/.jpg}  # → foto.jpg
+✅ 22. Definir una variable a partir de otra
+nombre="Pedro"
+saludo="Hola, $nombre"
+echo $saludo  # → Hola, Pedro
+✅ 23. Concatenar variables
+var1="Hola"
+var2="Mundo"
+mensaje="${var1}, ${var2}!"
+echo $mensaje  # → Hola, Mundo!
+✅ 24. Sustitución de valores en variables (% y #)
+nombre="usuario.txt"
+echo ${nombre%.txt}  # → usuario  (Quita la extensión)
+echo ${nombre#*.}  # → txt  (Obtiene la extensión)
+✅ 25. Comprobar si una variable está definida (-v)
+if [[ -v nombre ]]; then
+    echo "La variable 'nombre' está definida"
+else
+    echo "No está definida"
+fi
+✅ 26. Ver todas las variables definidas (set)
+set  # Muestra todas las variables del entorno y del usuario
+✅ 27. Ver solo variables de usuario (declare -p)
+declare -p  # Lista solo variables creadas por el usuario
+✅ 28. Sustitución de caracteres en variables
+texto="El cielo es azul"
+echo ${texto//cielo/mar}  # → El mar es azul
+✅ 29. Declarar variables con tipos (declare)
+declare -i numero=10  # Variable entera
+declare -r constante="Valor fijo"  # Variable de solo lectura
+✅ 30. Uso de variables en condicionales ([[ ]])
+variable="Hola"
+if [[ -n $variable ]]; then
+    echo "La variable no está vacía"
+fi
+variables que almacenan comandos dentro en Bash:
+✅ 1. Guardar la salida de un comando en una variable
+fecha=$(date)
+echo "Hoy es: $fecha"
+# Ejemplo de salida: Hoy es: Thu Mar  6 12:34:56 UTC 2025
+✅ 2. Guardar el resultado de ls en una variable
+archivos=$(ls)
+echo "Lista de archivos en el directorio:"
+echo "$archivos"
+✅ 3. Contar archivos en un directorio
+num_archivos=$(ls | wc -l)
+echo "Número de archivos en el directorio: $num_archivos"
+✅ 4. Obtener la IP del sistema
+mi_ip=$(hostname -I | awk '{print $1}')
+echo "Mi dirección IP es: $mi_ip"
+✅ 5. Guardar el nombre del usuario actual
+usuario=$(whoami)
+echo "Usuario actual: $usuario"
+✅ 6. Guardar el directorio actual
+directorio_actual=$(pwd)
+echo "Estás en: $directorio_actual"
+✅ 7. Guardar el uso de memoria actual
+memoria_libre=$(free -h | grep "Mem" | awk '{print $4}')
+echo "Memoria libre: $memoria_libre"
+✅ 8. Guardar el nombre del sistema operativo
+sistema_operativo=$(uname -s)
+echo "Sistema operativo: $sistema_operativo"
+✅ 9. Obtener el tiempo de actividad del sistema
+uptime_info=$(uptime -p)
+echo "Tiempo de actividad: $uptime_info"
+✅ 10. Guardar el PID del último comando ejecutado
+sleep 5 &
+ultimo_pid=$!
+echo "El último proceso en background tiene PID: $ultimo_pid"
+✅ 11. Guardar el número de usuarios conectados
+usuarios_conectados=$(who | wc -l)
+echo "Usuarios conectados: $usuarios_conectados"
+✅ 12. Guardar el uso de CPU
+uso_cpu=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}')
+echo "Uso de CPU: $uso_cpu%"
+✅ 13. Guardar la última línea de un archivo
+ultima_linea=$(tail -n 1 archivo.txt)
+echo "Última línea del archivo: $ultima_linea"
+✅ 14. Guardar el contenido de un archivo en una variable
+contenido=$(cat archivo.txt)
+echo "Contenido del archivo: $contenido"
+✅ 15. Guardar el nombre del shell actual
+mi_shell=$(echo $SHELL)
+echo "Estás usando el shell: $mi_shell"
+✅ 16. Guardar el espacio libre en disco
+espacio_libre=$(df -h / | awk 'NR==2 {print $4}')
+echo "Espacio libre en disco: $espacio_libre"
+✅ 17. Obtener la cantidad de procesos en ejecución
+procesos=$(ps aux | wc -l)
+echo "Número de procesos en ejecución: $procesos"
+✅ 18. Obtener la última actualización del sistema
+ultima_actualizacion=$(ls -lt /var/log/ | head -2 | tail -1 | awk '{print $6, $7, $8}')
+echo "Última actualización del sistema: $ultima_actualizacion"
+✅ 19. Guardar la ruta del ejecutable de un comando
+ruta_ls=$(which ls)
+echo "El comando ls está en: $ruta_ls"
+✅ 20. Guardar los permisos de un archivo
+permisos=$(ls -l archivo.txt | awk '{print $1}')
+echo "Los permisos del archivo son: $permisos"
+✅ 21. Obtener el nombre del host
+host=$(hostname)
+echo "El nombre del host es: $host"
+✅ 22. Obtener la zona horaria actual
+zona_horaria=$(timedatectl | grep "Time zone" | awk '{print $3}')
+echo "Zona horaria: $zona_horaria"
+✅ 23. Contar el número de líneas en un archivo
+num_lineas=$(wc -l < archivo.txt)
+echo "Número de líneas en el archivo: $num_lineas"
+✅ 24. Guardar el puerto de escucha de SSH
+puerto_ssh=$(cat /etc/ssh/sshd_config | grep "^Port" | awk '{print $2}')
+echo "SSH está usando el puerto: $puerto_ssh"
+✅ 25. Obtener el kernel del sistema
+kernel=$(uname -r)
+echo "Versión del kernel: $kernel"
+✅ 26. Verificar si un usuario existe en el sistema
+usuario="root"
+existe=$(getent passwd $usuario)
+if [[ -n $existe ]]; then
+    echo "El usuario '$usuario' existe"
+else
+    echo "El usuario '$usuario' NO existe"
+fi
+✅ 27. Obtener la dirección MAC de la interfaz de red
+mac=$(ip link show eth0 | grep "link/ether" | awk '{print $2}')
+echo "Dirección MAC de eth0: $mac"
+✅ 28. Obtener el número total de paquetes instalados
+paquetes=$(dpkg --list | wc -l)  # Para Debian/Ubuntu
+# paquetes=$(rpm -qa | wc -l)  # Para RedHat/CentOS
+echo "Número de paquetes instalados: $paquetes"
+✅ 29. Obtener el nombre del usuario con más procesos activos
+usuario_top=$(ps -eo user= | sort | uniq -c | sort -nr | head -1 | awk '{print $2}')
+echo "El usuario con más procesos en ejecución es: $usuario_top"
+✅ 30. Obtener el nombre de la interfaz de red principal
+interfaz=$(ip route | grep default | awk '{print $5}')
+echo "Interfaz de red principal: $interfaz"
+✅ Definiendo y Usando Variables
+name="Alice"; echo "Hola, $name"
+num=10; echo "El número es $num"
+greeting="Buenos días"; echo "$greeting, usuario!"
+x=5; y=7; echo "Suma: $((x + y))"
+file="archivo.txt"; cat "$file"
+✅ Usando Variables en Comandos
+dir="/tmp"; ls "$dir"
+cmd="ls -l"; $cmd
+prog="nano"; $prog archivo.txt
+url="https://example.com"; curl "$url"
+log="logfile.log"; tail -f "$log"
+✅ Uso con Rutas y Archivos
+backup_dir="/backups"; cp archivo.txt "$backup_dir/"
+logfile="log.txt"; echo "Iniciando..." >> "$logfile"
+filename="data.csv"; wc -l "$filename"
+dirname=$(basename "/home/user/folder"); echo "$dirname"
+filepath="/etc/passwd"; grep "root" "$filepath"
+✅ Bucles y Condiciones con Variables
+for i in 1 2 3; do echo "Número: $i"; done
+count=5; while [ $count -gt 0 ]; do echo "$count"; ((count--)); done
+num=4; if [ $num -gt 3 ]; then echo "Es mayor que 3"; fi
+var="test"; [ -z "$var" ] && echo "Vacío" || echo "No vacío"
+user_input="hola"; [[ "$user_input" == "hola" ]] && echo "Saludo detectado"
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅•PALABRAS NO PERMITIDAS•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+🔹 ✒ REVISAR: testeo
+PALABRAS NO PERMITIDAS: ->❌ SINTAX_ERROR:
+alias for while if elif do done case then in esac until coproc else select fi function 
+revisar casos:
+✅echo for 
+esto debe fallar: ->❌ SINTAX_ERROR:
+✅echo alias ll='ls -la'
+❌ alias ll='ls -la'
+✅"alias"
+✅"alias ll='ls -la'"
+❌for i in 1 2 3; do echo $i; done
+✅
+❌while true; do echo "Loop infinito"; sleep 1; done
+✅
+❌ if [ "$x" -eq 5 ]; then echo "x es 5"; fi
+❌ if [ $x -eq 5 ]; then
+✅
+❌ elif [ "$y" -gt 10 ]; then echo "y es mayor que 10"
+✅
+❌ do echo "Ejecutando comando en bucle"; done
+✅
+❌ done
+✅
+❌ case "$var" in foo) echo "Es foo" ;; bar) echo "Es bar" ;; esac
+✅
+❌ then echo "Ejecutando bloque THEN"
+✅ "then echo "Ejecutando bloque THEN""
+❌ in some_folder/*) echo "Coincide con algún archivo"
+✅ echo 'in some_folder/*) echo "Coincide con algún archivo"'
+❌ esac
+✅ ls "esac"
+❌ until [ "$x" -eq 10 ]; do echo "x no es 10"; x=$((x+1)); done
+✅ "until [ "$x" -eq 10 ]; do echo "x no es 10"; x=$((x+1)); done"
+❌ coproc myproc { sleep 5; echo "Proceso terminado"; }
+✅ 'coproc myproc { sleep 5; echo "Proceso terminado"; }'
+❌ else echo "Se ejecuta ELSE"
+✅ echo 'else'
+❌ select option in "Opción1" "Opción2"; do echo "Elegiste $option"; break; done
+✅' select option in "Opción1" "Opción2"; do echo "Elegiste $option"; break; done'
+❌ fi
+✅ "fi"
+❌ function my_func { echo "Esto es una función"; }
+✅ 'function my_func { echo "Esto es una función"; }'
+#•❅──────✧❅✦❅✧──────❅••❅──❅•METACARACTERES NO PERMITIDOS•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+deberia dar SINTAXIS_ERROR: ; \t & ( ) \n !  #
+
+TEST                                                                                              TEST_LINE                                    TEST_EJECUCION
+❌echo "Comando 1"; echo "Comando 2"                                                              
+❌echo "Comando; 1"; echo "Comando 2"                                                             
+echo "Comando 1" ";" echo "Comando 2"                                                           
+❌echo "Comando 1";echo "Comando 2"                                                                                                                        
+❌echo "Comando; 1";echo "Comando 2"                                                              
+✅echo "Comando 1" ";"echo "Comando 2"                                                            
+✅echo ";hola"                                                                                    
+❌echo 'Comando 1'; echo 'Comando 2'                                                              
+❌echo "Comando; 1"  ; echo "Comando 2"                                                           
+✅echo ';hola'                                                                                    
+❌# echo hola                                                                                                                     
+❌echo ho#la                                                                                                                    
+❌!                                                                                                                    
+❌echo !hola!                                                                                                                     
+✅echo '!hola'                                                                                                                     
+❌("(HOLA)")                                                                                      
+❌(echo "Comando dentro de paréntesis" && echo "Otro comando dentro")                             
+✅echo "   hola(o no) "                                                                           
+❌echo "Prueba 1"; echo "Prueba 2" & (echo "Subshell 1"; echo "Subshell 2")                       
+
+OPERADORES NO PERMITIDOS: &&, ||, ;;, <<<, >|, |&, $|, 2>, 2>>, 2>&1, >&, &>
+❌echo hola && ls                                                                                
+❌echo hola & ls                                                                                 
+❌echo hola&&                                                                                    
+❌echo hola && &                                                                                  
+✅echo 'hola && &'                                                                                  
+❌mkdir mi_carpeta && rm -fr mi_carpeta
+✅mkdir mi_carpeta '&&' rm -fr mi_carpeta
+❌echo hola &&ls                                                                                                       
+❌echo hola &ls                                                                                                        
+❌echo hola&&                                                                                                          
+❌echo hola &&&                                                                                                        
+✅echo 'hola &&&'                                                                                                         
+✅echo 'hola && &'                                                                                                                    
+❌echo hola & &&                                                                                                                     
+ls |& wc -l
+
+COMANDOS A TESTEAR:
+TEST                                                                                   TEST_LINE                                            TEST_EJECUCION
+❌echo "Comando 1" && echo "Comando 2"                                                                                                                       
+✅echo "Comando 1 && echo Comando 2"                                                                                                                       
+✅echo 'Comando 1 && echo Comando 2'                                                                                                                         
+❌echo "Comando 1" &&echo "Comando 2"                                                                                                    
+✅echo "Comando 1 &&echo Comando 2"                                                                                                                        
+✅echo '&&hola'                                                                                                                                                           
+❌echo && hola                                                                                                                                                          
+❌echo "Comando 1" || echo "Comando 2"                                                                                                                        
+✅echo "Comando 1 || echo Comando 2"                                                                                      
+✅echo "Comando 1||echo Comando 2"                                                                                                                       
+❌echo Comando 1||echo Comando 2                                                                                                                         
+❌read num; case $num in 1) echo "Uno";; 2) echo "Dos";; 3) echo "Tres";; *) echo "Otro";; esac	               
+✅echo "read num; case $num in 1) echo "Uno";; 2) echo "Dos";; 3) echo "Tres";; *) echo "Otro";; esac"       
+❌cat <<< "Texto de prueba"                                                                                           
+✅echo "cat <<< Texto de prueba"                                                                                                                  
+❌echo "Texto sobrescrito" >| archivo.txt                                                                                                                    
+✅echo "Texto sobrescrito >| archivo.txt"                                                                                                                    
+✅echo 'Texto sobrescrito >| archivo.txt'                                                                                                                    
+❌echo "Texto sobrescrito" >|archivo.txt                                                                                                                                                           
+✅echo "Texto sobrescrito >|archivo.txt"                                                                                                                    
+✅echo "Error de prueba |&[ tee archivo.log"                                                                                                               
+❌echo "Error de prueba" |& tee archivo.log                                                                                                                          
+✅echo "Error de prueba |& tee archivo.log"                                                                                                                          
+❌echo "Error de prueba" |&tee archivo.log                                                                                                                          
+✅echo "Error de prueba |&tee archivo.log"                                                                                                                          
+❌echo "Error de prueba" |&[tee archivo.log                                                                                                                                                                 
+❌echo "Texto de salida" $| tee archivo.txt                                                                                                                       
+✅echo "Texto de salida $| tee archivo.txt"                                                                                                                         
+❌echo "Texto de salida" $|tee archivo.txt                                                                                                                        
+✅echo "Texto de salida $|tee archivo.txt"                                                                                                                         
+
+//testeo de: bool has_invalid_numeric_redir(const char *str, t_metachars *meta):
+❌echo "Este es un error" 0> error.txt                                                                                                      
+✅echo "Este es un error" '0> error.txt'                                                                                                   
+✅echo "Este es un error" '0'> error.txt                                                                                                   
+✅echo "Este es un error" '0>' error.txt                                                                                                   
+❌echo "Este es un error" 1> error.txt                                                                                                      
+❌echo "Este es un error" 2> error.txt                                                                                                       
+❌echo "Este es un error" 3> error.txt                                                                                                       
+❌echo "Este es un error" 27> error.txt                                                                                                      
+❌echo "Este es un error" 3025> error.txt                                                                                                      
+❌echo "Este es un error" 3025 > error.txt                                                                                                      
+❌echo "Este es un error" 2025 > error.txt                                                                                                  
+❌echo "Este es un error" 3025 > error.txt                                                                                                  
+❌echo "Este es un error" 1125 > error.txt                                                                                             
+❌echo "Este es un error" 1025 > error.txt                                                                                           
+❌echo "Este es un error" 1025> error.txt                                                                                                    
+❌echo "Este es un error" 1025>> error.txt                                                                                               
+❌ls>salida.txt 158<file.txt                                                                                                     
+
+❌echo "Este es un error" 54893> error.txt                                                                                                      
+✅echo "Este es un error"27> error.txt                                                                                                    
+✅echo "Este es un error" "27> error.txt"                                                                                                      
+✅echo "Este es un error" "27> error.txt"                                                                                                      
+✅ls>salida.txt27>file.txt                                                                                                     
+❌ls>salida.txt 27>file.txt                                                                                                      
+✅ls>salida.txt '27>file.txt'                                                                                                      
+✅ls>salida.txt'27>file.txt'                                                                                                      
+❌ls>salida.txt 27<>file.txt                                                                                                     
+❌ls>salida.txt 5269<>file.txt                                                                                                     
+✅ls>salida.txt 5269'<>'file.txt                                                                                                     
+✅ls>salida.txt 5269'<>file.txt'                                                                                                     
+✅ls>salida.txt 1269'<>file.txt'                                                                                                     
+
+❌echo hola 45<<-EOF                                                                                                    
+❌echo hola 45<<-EOF <<EOF2                                                                                                    
+❌echo hola 5789<<-EOF 145<<EOF2                                                                                                    
+❌echo hola 5789 <<-EOF 145<<EOF2                                                                                                     
+✅echo hola '5789<<-EOF 145<<EOF2'                                                                                                     
+❌echo hola 3<<-EOF <<EOF2                                                                                                    
+✅echo hola3<<-EOF <<EOF2                                                                                                    
+✅echo hola3<<-EOF<<EOF2                                                                                                   
+
+
+❌echo "Este es un error" 2> error.txt                                                                                                      
+✅echo "Este es un error 2> error.txt"                                                                                        
+❌echo "Este es un error" 2>error.txt                                                                                        
+✅echo "Este es un error 2>error.txt"                                                                                        
+
+❌echo "Este es otro error" 2>> error.txt                                                                                     
+✅echo "Este es otro error 2>> error.txt"                                                                                     
+❌echo "Este es otro error" 2>>error.txt                                                                                     
+✅echo "Este es otro error 2>>error.txt"                                                                                     
+
+❌echo "Este es un error" 2>&1                                                                                               
+✅echo "Este es un error 2>&1"                                                                                                
+
+❌echo "Salida combinada" >& archivo.txt                                                                                      
+✅echo "Salida combinada >& archivo.txt"                                                                                      
+❌echo "Salida combinada" >&archivo.txt                                                                                      
+✅echo "Salida combinada >&archivo.txt"                                                                                      
+
+❌echo "Texto combinado" &> archivo_combinado.txt                                                                             
+✅echo "Texto combinado &> archivo_combinado.txt"                                                                             
+❌echo "Texto combinado" &>archivo_combinado.txt                                                                             
+✅echo "Texto combinado &>archivo_combinado.txt"                                                                             
+
+ 
+🔹 ✒ REVISAR: is_fd_redirection() testeo
+fd diferentes de 0, 1 y 2:
+TEST                                                                                           TEST_LINE                                    TEST_EJECUCION
+❌echo "Texto para el descriptor 3" 3> archivo3.txt                                              
+❌echo "Texto para el descriptor 3" 4> archivo3.txt                                              
+❌echo "Texto para el descriptor 3" 3>> archivo3.txt                                              
+❌echo "Texto para el descriptor 3" 3>>archivo3.txt                                              
+✅echo "Texto para el descriptor 3 3> archivo3.txt"                                              
+❌echo "Texto para el descriptor 3" 3>archivo3.txt                                               
+❌echo "Texto para el descriptor 3"3> archivo3.txt                                                
+✅echo "Texto para el descriptor 3 3>archivo3.txt"                                               
+
+❌echo "Texto para el descriptor 4" 4>> log.txt                                                  
+✅echo "Texto para el descriptor 4 4>> log.txt"                                                  
+❌echo "Texto para el descriptor 4" 4>>log.txt                                                   
+✅echo "Texto para el descriptor 4 4>>log.txt"                                                   
+
+❌echo "Texto para el descriptor 3" 3>&1                                                           
+✅echo "Texto para el descriptor 3 3>&1"                                                                                                                     
+✅echo "Texto para el descriptor 3    3>&1 o no "                                                
+❌echo "Texto para el descriptor 3"3>&1                                                          
+✅echo "Texto para el descriptor 33>&1"                                                                                                                     
+
+❌echo "Texto para el descriptor 4" 4>&3                                                           
+✅echo "Texto para el descriptor 4 4>&3"                                                                                                                     
+❌echo "Texto para el descriptor 4"4>&3                                                             
+✅echo "Texto para el descriptor 4 4>&3"                                                                                                                     
+
+❌echo "Texto del descriptor 4" <&4                                                                 
+❌echo "Texto del descriptor 4"<&4                                                                                                                     
+✅echo "Texto del descriptor 4 <&4"                                                                                                                     
+
+❌echo "Texto del descriptor 0" <&0                                                                  
+❌echo "Texto del descriptor 0"<&0                                                                                                                     
+✅echo "Texto del descriptor 0 <&0"                                                                                                                     
+
+🔹 ✒ REVISAR: is_fd_redirection() testeo
+fd diferentes de 0, 1 y 2:
+TEST                                                                                          TEST_LINE                                    TEST_EJECUCION
+❌hola mundo     3>file.txt                                                                       
+✅'     3>file.txt          '                                                                                                                     
+✅"hola      3>file.txt          "                                                                                                                     
+✅"hola      '3>file.txt'          "                                                                                                                     
+
+❌ls -l4>>log.txt                                                                                             
+✅'     4>>log.txt          '                                                                                                                      
+✅"hola      4>>log.txt          "                                                                                                                     
+
+❌ls -l 3>&1, 4>&3                                                                                            
+✅'     3>&1, 4>&3          '                                                                                                                     
+✅"hola     3>&1, 4>&3          "                                                                                                                     
+
+❌ls -l<&4, <&0                                                                                             
+✅'    3>&1, 4>&3         '                                                                                                                     
+✅"hola      3>&1, 4>&3       "                                                                                                                     
+

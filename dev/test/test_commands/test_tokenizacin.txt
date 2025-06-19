@@ -1,0 +1,345 @@
+❓ -> diferente bash y mini -> no se gestionan los mismos operadores. 
+✅ -> igual bash y mini- > ok
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•##•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+quitar comillas:
+✅ <<"$USER"					-> delimiter:  $USER
+✅ <<""$USER""				-> delimiter:  $USER 
+✅ <<'$USER'					-> delimiter:  $USER 
+✅ <<''$USER''				-> delimiter:  $USER 
+✅ <<$US'E'R					-> delimiter:  $USER 
+✅ <<$"US"ER 				-> delimiter:  $USER 
+✅ <<"'$USER'"				-> delimiter:  '$USER'
+✅ <<'"$USER"'				-> delimiter:  "$USER"
+
+
+<<ls'<'            -> here-doc(con ls< como heredoc_delimiter)                                        
+<<ls'<<'            -> here-doc(con ls<< como heredoc_delimiter)                                        
+<<ls"<"            -> here-doc(con ls< como heredoc_delimiter)                                        
+cat <<ls"<<"            -> here-doc(con ls<< como heredoc_delimiter)
+<<EOF'<<'              -> DELIMITER ES: EOF<<
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•##•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+✅ ls | |
+✅ ( echo "Hola"; echo 'loco'; echo "Mundo") | sort
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•##•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+✅ echo "hello">>>file.txt 
+✅ echo "hello">>>>>file.txt   
+✅ ls >>>>> list.txt  
+✅ cat<< << <<file.txt   
+✅ << << <<     
+✅ << << << << 
+✅ << << (  
+✅ ls>>>/test/testeando_minis/list_test.txt
+✅ wc -l '< testeo.txt  
+✅ wc -l <' testeo.txt  
+✅ echo hola > > archivo.txt argumento
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•##•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+✅ ✔ comillas abiertas entran por ✅ SINTAX_ERROR → comillas ebiertas ver subject minishell. 
+	→ patron comando es el primer token: lo mismo para ' y "
+		→ |' y |"					   → espera un comando antes del separador especial 	→ ✅ SINTAX_ERROR
+		→ | algo "/' 																		→ ✅ SINTAX_ERROR
+
+		→  &&' y &' y ||' y ||'																→ ✅ SINTAX_ERROR
+		→ '| y '&& y '|| 																	→ ✅ SINTAX_ERROR
+		→ "| y "&& y "|| 																	→ ✅ SINTAX_ERROR
+		→ >|' y '>|	y '$| y $|'																→ ✅ SINTAX_ERROR
+	
+	→ patron redireccion: lo mismo para ' y "
+		→ <' y >' y '< y '>  y lo mismo con >> y << 										→ ✅ SINTAX_ERROR
+		→ ls >' test.txt																	→ ✅ SINTAX_ERROR
+		→ ls >" test.txt																	→ ✅ SINTAX_ERROR
+		→ << 'LIMITER 																		→ ✅ SINTAX_ERROR
+		→ << LIMITER '																		→ ✅ SINTAX_ERROR
+
+✅ '|							SINTAXIS_ERROR (COMO EN COMILLAS ABIERTAS)						 → 	✅_SINTAX_ERROR
+✅ "|							SINTAXIS_ERROR (COMO EN COMILLAS ABIERTAS)						 → 	✅_SINTAX_ERROR
+✅ "|!							SINTAXIS_ERROR (COMO EN COMILLAS ABIERTAS)						 → 	✅_SINTAX_ERROR
+✅ '|!							SINTAXIS_ERROR (COMO EN COMILLAS ABIERTAS y !)					 →  ✅_SINTAX_ERROR
+
+✔ comillas abiertas entran por ✅ SINTAX_ERROR:
+✅ echo 'He said: "Hello!"
+✅ echo 'He said: "He'llo"'
+✅ echo 'He said: "He"l'lo"'
+✅ echo 'He said: "Hel'lo"'
+✅ echo "He said: "'Hello'!"
+✅ echo "He said: " 'Hello'!" 
+✅ echo "He said: " ' " ' 'Hello'!" 
+✅ echo "He said: "Hello!" 
+✅ echo 'He said: 'Hello!' 
+✅ echo "Hello" > "testeo.txt									SINTAXIS_ERROR (COMO EN COMILLAS ABIERTAS)						 ✅_SINTAX_ERROR
+✅ echo "Hello" > 'testeo.txt									SINTAXIS_ERROR (COMO EN COMILLAS ABIERTAS)						 ✅_SINTAX_ERROR
+✅ echo "Texto con variable \$HOME dentro    
+✅ echo "Esto es un 'texto con \"dobles y 'simples"    
+✅ echo "'Uno 'Dos' 'Tres \"Cuatro\" \"Cinco"    
+✅ echo "'Texto dentro de comillas \"Más texto 'Y más"    
+✅ echo "Combinando 'simples y \"dobles correctamente"    
+✅ echo "'Un nivel \"Otro nivel 'Otro más \"Final"    
+✅ echo "'Texto con \\\"escape de comillas dobles'"    
+✅ echo "\"Texto con \\\"escape de comillas simples 'incorrecto"    
+✅ echo "'Aquí va 'una cadena de 'comillas \"cerradas"    
+✅ echo "'Esto es \"una prueba 'con \"muchas comillas"   
+✅ echo "Hello" | cat ' | grep "H" | wc -l
+✅ echo "Texto con redirección > file.txt       
+✅ echo 'Texto con << aquí << fin       
+✅ echo "Texto con > redirección > salida.txt       
+✅ echo "Usando pipe correctamente | cat       
+✅ echo 'Comillas sin cerrar >> archivo.txt       
+✅ echo 'Comilla doble sin cerrar: "Hola
+
+✅ echo 'Comilla simple dentro de comillas dobles: "O'Reilly"'     
+✅ "hola      3>&1," 4>&3       "  
+✅ 'hola      3>&1,' 4>&3       '  
+✅ 'hola      3>&1,' ' ' 4>&3       '  
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+✅ ||						SHELL_ERROR -> -bash: syntax error near unexpected token `|' -> 2: command not found	
+✅ |&						SHELL_ERROR -> -bash: syntax error near unexpected token `|&' -> 2: command not found	
+✅ | ||						SHELL_ERROR -> -bash: syntax error near unexpected token `|' -> 2: command not found	
+✅ ||||||||					SHELL_ERROR -> -bash: syntax error near unexpected token `||' -> 2: command not found	
+
+❓ |'								SHELL_ERROR -> -bash: syntax error near unexpected token `|' -> 2: command not found	
+❓ |"								SHELL_ERROR -> -bash: syntax error near unexpected token `|' -> 2: command not found	
+✅ |!								SHELL_ERROR -> -bash: syntax error near unexpected token `|' -> 2: command not found	
+
+✅ ls>test.txt | | grep "txt"
+✅ ls>test.txt | | | grep "txt"
+✅ ls >>>>> list.txt  
+✅ cat<<<<<<file.txt  
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅• here-doc•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+✅ <<< ls  
+✅ <<< 'ls' 
+✅ echo << < 'ls' 
+✅ echo '<<< ls'  
+
+✅ cat<<<<<<<END>>>>>>testfile.txt
+✅ cat<<<<<<<EOF|grep "example"     
+✅ sort<<<<<unsorted.txt>>>>>>sorted.txt 
+✅ cat << "inline input"    
+✅ cat<<<"inline input"    
+✅ <<<EOF    
+✅ <<< EOF    
+✅ <<< "EOF"    
+
+❓ cat << EOF <            -> primero here-doc y luego bash: syntax error near unexpected token `newline' y no imprime here-doc
+❓ cat << EOF <<           -> primero here-doc y luego bash: syntax error near unexpected token `newline' y no imprime here-doc
+❓ <<ls<                 -> primero here-doc(con ls como heredoc_delimiter) y luego bash: syntax error near unexpected token `newline'
+❓ <<ls >                -> primero here-doc(con ls como heredoc_delimiter) y luego bash: syntax error near unexpected token `newline'
+❓ cat << EOF << <        -> primero here-doc y luego bash: syntax error near unexpected token `newline' y no imprime here-doc
+❓ cat << EOF << <<       -> primero bash: syntax error near unexpected token `<' y luego here-doc pero no imprime here-doc
+❓ cat << EOF << << <       -> primero bash: syntax error near unexpected token `<<' y luego here-doc pero no imprime here-doc
+❓ cat << EOF << << <       -> primero bash: syntax error near unexpected token `<<' y luego here-doc pero no imprime here-doc
+❓ cat << EOF << >       -> primero bash: syntax error near unexpected token `>' y luego here-doc pero no imprime here-doc
+❓ cat << EOF << >      -> primero bash: syntax error near unexpected token `>' y luego here-doc pero no imprime here-doc
+❓ cat << EOF << >>       -> primero bash: syntax error near unexpected token `>>' y luego here-doc pero no imprime here-doc
+❓ cat << EOF << >> >       -> primero bash: syntax error near unexpected token `>>' y luego here-doc pero no imprime here-doc
+❓ cat << EOF << << <<       -> primero bash: syntax error near unexpected token `<<<' y luego here-doc pero no imprime here-doc
+❓ cat << EOF << << << <      -> primero bash: syntax error near unexpected token `<<<' y luego here-doc pero no imprime here-doc
+❓ cat << EOF <<EOF2 << << << <     -> primero bash: syntax error near unexpected token `<<' y luego here-doc y here-doc2
+❓ <<ls<< 
+❓ <<ls<< <        -> primero here-doc(con ls como heredoc_delimiter) y luego bash: syntax error near unexpected token `newline'
+❓ << ls | | ls <<
+❓ <<ls<<                                                    
+❓ << ls |             
+❓ << ls | |           
+❓ cat << ls | |       
+❓ <<EOF <<EOF2 <      
+❓ <<EOF <<EOF2 <<     
+❓ <<EOF <<EOF2 << <<      
+❓ <<EOF <<EOF2 << <   
+
+✅ <<ls <<<la                  -> solo here-doc here string se pierde
+✅ < <<ls <<la                 -> se puede cerrar ls y la 
+✅ << < EOF <<ls < 
+✅ < << EOF <<ls <
+✅ << < EOF <<ls |
+✅ << < EOF <<ls | <
+✅ << ls |          (open pipe)
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅•BASH_ERROR•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+TEST                                           TEST_LINE                                    TEST_EJECUCION
+
+🔶 por '<<<' se lo come tokenizacion de << y <
+✅ << <        
+✅ <<<                    
+✅ <<<<                  
+✅ <<<<<                  
+✅ <<<<<                   
+✅ << << .. 
+✅ << < |      
+
+🔶 cosas de mini, no igual que en bash
+❓ <>							SHELL_ERROR -> -bash: syntax error near unexpected token `newline'		 
+❓ << (							SHELL_ERROR -> bash: syntax error near unexpected token `('				 
+✅ << < (							SHELL_ERROR -> bash: syntax error near unexpected token `('				 
+✅ << << (							SHELL_ERROR -> bash: syntax error near unexpected token `('				 
+✅ << << << << (					SHELL_ERROR -> bash: syntax error near unexpected token `<<<'			 
+✅ << << << << <(						SHELL_ERROR -> bash: syntax error near unexpected token `<<<'			 
+
+🔶 por -> SYNTAX_ERROR: '<<<'
+
+✅ << <<               
+✅ << <ls<< <          
+✅ << <ls<<            
+
+🔶 por -> PIPE ABIERTO -> SYNTAX_ERROR (COMO EN COMILLAS ABIERTAS)	
+
+❓ <<EOF <<EOF2 |     
+❓ echo|
+❓ echo |                                                            
+❓ grep|                                                      
+❓ ls |                                                      
+❓ $|	                                                      			
+❓ cat archivo.txt |         
+❓ echo "hola" |         
+❓ echo hola |                                                            
+❓ wc |                                                          
+
+🔶 🔶  NO entran:
+❓ <->|                                                                                                                                                                           
+✅ >><                                        
+❓ <>|                                                 
+❓ < >|                     
+❓ >|                       
+❓ ><>                      
+❓ <><                      
+✅ < | >                    
+
+🔶 `newline' (2: command not found)
+✅ echo "Hola" | <        
+✅ ls | >> 
+❓ << ls << la <<         
+✅ >>   
+✅ <   
+✅ >
+✅ <->
+✅ <+>     
+✅ <$>   
+✅ <$USER<  
+✅ <$USER>  
+✅ ls >    
+✅ echo "Hola" < 
+❓ << ls <<
+✅ ls <<  
+✅ ls >>   
+✅ echo "test" >>   
+✅ '<<'ls< 
+✅ '<<'ls<< 
+✅ <ls<<	 
+✅ >ls>>	     
+✅ >>ls>>	     
+✅ >ls>	    
+✅ ls | >
+✅ ls | >>    
+
+
+🔶 `|' (2: command not found)
+✅ | 
+✅ << ls | | ls
+✅ la | | << ls
+✅ | | >									    
+✅ ls | | >	    
+✅ echo > |			    						
+✅ ls >> |			    						
+✅ << |				    							
+✅ <<|
+✅ << | |
+✅ |$
+✅ <|
+❓ |>
+✅ | ls
+✅ | ls |
+✅ | |  
+✅ | | ls
+✅ ls >> | |
+✅ ls >> |
+✅ | >>
+✅ | <<   
+✅ >>|     
+✅ | <<      
+✅ | >>  
+✅ | < > 
+✅ | << >> 
+✅ | >> << 
+✅ grep "error" | | ls      
+✅ cat < | grep "test"      
+✅ ls << | cat 
+✅ echo "Texto" > | grep "Texto"    
+✅ grep "dato" >> | wc -l    
+✅ ls | | grep "archivo"               
+✅ echo "Test" | | cat              
+✅ grep "texto" | | | wc -l          
+✅ grep "error" << | cat   
+✅ ls | >> | cat         
+
+🔶 `>' (2: command not found)
+✅ cat < >
+✅ cat << > archivo.txt
+✅ echo "test" < > | wc -l     
+✅ grep "dato" >> > | ls     
+✅ >> > |  
+✅ << > |  
+✅ < > |  
+✅ ls >>> list.txt     
+✅ >>>   
+✅ >> > 
+✅ > >
+✅ ls >> > file       
+✅ grep "texto" >> >       
+✅ grep "data" >> > archivo.txt      
+✅ echo "error" > > archivo.txt      
+✅ ls>>> list.txt  
+
+🔶 `<' (2: command not found)
+✅ < <  
+✅ << <EOF      
+✅ << < EOF      
+✅ << <      
+✅ awk '{print $1}' < <    
+✅ echo "Hola" > < archivo.txt    
+
+🔶 `>>' (2: command not found)
+❌ > >> << EOF
+✅ cat << >> | grep "texto"
+✅ > >> |    
+✅ << >> |    
+✅ ls << >> |
+✅ >> >> >> >> > | >
+✅ >> >> >> >> > | >> 
+✅ >> >> >> >> < | >
+✅ >> >> >> >> | >
+✅ >> >> >> >> | << <<  
+✅ >>>>>>>>  
+✅ >>>> 
+✅ ls >>>> list.txt 
+✅ ls >>>>> list.txt 
+✅ ls << >> 
+✅ ls << >> |  
+✅ ls >> >> file  
+✅ ls >> >> >file
+✅ << >>
+✅ ls>>>>>list.txt
+
+🔶 `<<' (2: command not found)
+✅ <ls<< << << < -> << < 
+✅ echo hola < << ls                    
+✅ cat < << ls                        
+✅ << ls << la << <<                       
+✅ grep "data" >> <<                                                                                                                                   
+✅ << <<                                                                                                                                          
+✅ << << <                                                                                                                                        
+✅ < << <<< >> >                                                                                                                                 
+✅ << <<EOF	                    
+✅ < << | <<< >> > 		                                                                  
+✅ < <<EOF				                                                                 
+✅ cat << << archivo.txt                                                                                                                                         
+
