@@ -20,7 +20,7 @@ void minishell_loop( t_program *program)
 		signal(SIGQUIT, SIG_IGN); // Ignoramos Ctrl+
 
 		get_or_set_last_exit_status(program->last_exit_status, true);
-		if (g_atomic == 130)
+		/* if (g_atomic == 130)
 		{
 			program->last_exit_status = 130;
 			free(all.line);
@@ -35,8 +35,8 @@ void minishell_loop( t_program *program)
 			g_atomic = 0;
 			continue;
 			//fprintf(stderr, "g_atomic despues de receteo :%d\n ", g_atomic);
-		}
-		/*
+		} */
+		
 		if (g_atomic == 130)
 		{
 			program->last_exit_status = 130;
@@ -45,15 +45,15 @@ void minishell_loop( t_program *program)
 			g_atomic = 0;
 			continue;
 		}
-			*/
+		
 			
 		//write(STDERR_FILENO, "start loop\n ", 11);
 
 		if (ft_str_is_empty_or_spaces(all.line))				//saltar si línea está vacía o sólo espacios
 		{
 			free(all.line);
-			all.line = get_line_prompt(program); 
-			//all.line = readline(get_prompt(program));
+			//all.line = get_line_prompt(program); 
+			all.line = readline(get_prompt(program));
 			if (catch_interactive(program, &all, all.line ))
 			{
 				//fprintf(stderr, "⛔ Saliendo del loop por Ctrl+D\n");
@@ -104,8 +104,8 @@ void minishell_loop( t_program *program)
 		ft_exec(&all, program);
 
 		free_all_structs(&all);  // o handle_reset(&all, &program)
-		//all.line = readline(get_prompt(program));
-		all.line = get_line_prompt(program); 
+		all.line = readline(get_prompt(program));
+		//all.line = get_line_prompt(program); 
 		if (catch_interactive(program, &all, all.line ))
 		{
 			//fprintf(stderr, "⛔ Saliendo del loop por Ctrl+D\n");
