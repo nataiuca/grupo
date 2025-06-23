@@ -175,6 +175,8 @@ pid_t	fork_and_exec_command(t_all *all, t_tokens *curr, int i, t_program *progra
 		handle_fork_error(program, all);
 	if (pid == 0)
 	{
+		signal(SIGINT, handler_child);
+		signal(SIGQUIT, SIG_DFL);
 		exec_and_exit_child(all, curr, program, i);
 	}
 	//fprintf(stderr,"\033[0;34m ⚠️DEBUG: p->l_e_s en fork_command: %d \n  \033[0m\n", program->last_exit_status);
@@ -189,119 +191,74 @@ int	check_failed_redir_child(pid_t pid, t_program *program)
 	waited = waitpid(pid, &status, WNOHANG);
 	if (waited == -1)
 	{
-		ft_error(program, MSG_ERR_NO_SUCH_FILE, "waitpid", 1); // o un mensaje más específico si prefieres
+		ft_error(program, MSG_ERR_NO_SUCH_FILE, "waitpid", 1);
 		return (1);
 	}
 	if (waited == 0)
-		return (0); // hijo sigue vivo
+		return (0); 
 
 	if (WIFEXITED(status))
 	{
 		int exit_status = WEXITSTATUS(status);
 		if (exit_status == 1)
 		{
-			ft_error(program, "child process exited early due to redirection error", "minishell", 1);
+			ft_error(program, "Redirection failed in child process", NULL, 1);
 			return (1);
 		}
 	}
-	else if (WIFSIGNALED(status)) //terma señales, luego se revisa
-	{
-		char	signal_msg[64];
-		snprintf(signal_msg, sizeof(signal_msg), "child was killed by signal %d", WTERMSIG(status)); //revisar esto
-		ft_error(program, signal_msg, "minishell", 1);
-		return (1);
-	}
 	return (0);
 }
+
 
 void	wait_child(t_all *all, t_program *program)
 {
-	int i;
-	int status;
-	int num_cmds;
-	if (all->exec->num_pipes == 1)
-		num_cmds = 2;
-	else
-		num_cmds = all->exec->num_pipes + 1;
-	//printf("⚠️DEBUG: entrando en wait_for_children\n");
-	//fprintf(stderr,"\033[0;34m ⚠️ DEBUG: num_pids en wait_for_child: %d \033[0m\n", num_cmds);
+	int		i;
+	int		status;
+	int		num_pids;
+	int		atom=0;
+
+	
+	//no ignoras la señal en el padre mientras espera.
+	signal(SIGINT, SIG_IGN);
+	signal(SIGQUIT, handler);
+	num_pids = all->exec->num_pipes + 1;
 	i = 0;
-	while (i < num_cmds)
+	while (i < num_pids)
 	{
-		if (all->exec->pids[i] > 0)
-			waitpid(all->exec->pids[i], &status, 0);
+		waitpid(all->exec->pids[i], &status, 0);
+		if (WIFSIGNALED(status))
+		{
+			if (WTERMSIG(status) == SIGINT)
+				atom = SIGINT;
+			else if (WTERMSIG(status) == SIGQUIT)
+				atom = SIGQUIT;
+		}
 		i++;
 	}
-	program->last_exit_status = WEXITSTATUS(status);
-	//printf("⚠️DEBUG: saliendo de  wait_for_children\n");
-}
-
-
-int check_child(t_program *program, t_all *all)
-{
-	if (all->exec->args && ft_strcmp(all->exec->args[0], ":") == 0)
+	// Obtener código de retorno del último hijo
+	if (WIFEXITED(status))
 	{
-		if (!apply_redir(all, program)) // redirecciones como `> file`
-			return (1);
-		return (2);
+		program->last_exit_status = WEXITSTATUS(status);
+		//fprintf(stderr, "DEBUG 1 : testeito en wait_child->exit_status: %d\n ", program->last_exit_status);
 	}
-	if (!apply_redir(all, program) || !config_fd_redir(all->exec->infile, all->exec->outfile, program))
-		return (1);
-	return (0);
-}
-
-void fork_and_run_single_cmd(t_all *all, t_program *program, t_tokens *curr)
-{
-    pid_t pid;
-    int status;
-	int check_child_result;
-
-    pid = fork();
-    if (pid < 0)
-    {
-        ft_error(program, MSG_ERR_FORK, NULL, 1);
-        return;
-    }
-    if (pid == 0) // Proceso hijo
-    {
-		check_child_result = check_child(program, all);
-		if (check_child_result == 1)
-			free_and_exit_child(all, program, program->last_exit_status);
-		if (check_child_result == 2)
-			free_and_exit_child(all, program, 0);
-        execute_command(all, program, curr);
-        exit(EXIT_FAILURE);			// Si exec_cmd falla y regresa, forzamos salida (por seguridad)
-    }
-    else // Proceso padre
-    {
-        waitpid(pid, &status, 0);
-        program->last_exit_status = WEXITSTATUS(status);	
-    }
-}
-	
-
-void run_single_command(t_all *all, t_program *program)
-{
-	t_tokens *first_cmd = find_cmd (all->tokens);
-
-	if (first_cmd && is_forbidden_env_path(first_cmd->content))
+	else if (WIFSIGNALED(status))
 	{
-		ft_error(program, "bash: env: external call not allowed", NULL, 127);
-		return;
+		int signal_num = WTERMSIG(status);
+		program->last_exit_status = 128 + signal_num;
+		//fprintf(stderr, "DEBUG 2: testeito en wait_child->exit_status: %d\n ", program->last_exit_status);
+		g_atomic = 128 + signal_num;
 	}
-	if (first_cmd && is_forbidden_pwd_path(first_cmd->content))
+	// Mensajes finales
+	if (g_atomic == SIGQUIT)
+		ft_error(program, "Quit (core dumped)", NULL, 131);
+	if (g_atomic || atom)
 	{
-		ft_error(program, "bash: pwd: external call not allowed", NULL, 127);
-		return;
+		//fprintf(stderr, "\nDEBUG 2: testeito en wait_child->g_atomic: %d\n ", g_atomic);
+		//fprintf(stderr, "DEBUG 2: testeito en wait_child->atom: %d\n ", atom);
+		write(STDOUT_FILENO, "err2\n", 5); //tu bien ->//modir, testeo
 	}
-	if (first_cmd && (check_builtin(first_cmd->content) || must_use_env_builtin(first_cmd->content) || must_use_pwd_builtin(first_cmd->content)))
-	{
-		if (!apply_redir(all, program))
-			return;
-		ft_builtin(all, program);
-		return;
-	}
-	fork_and_run_single_cmd(all, program, first_cmd);
+	signal(SIGINT, handler_builtins); // Restaurar señales
+	signal(SIGQUIT, SIG_IGN);
 }
 
 void ft_exec(t_all *all, t_program *program)
@@ -322,4 +279,6 @@ void ft_exec(t_all *all, t_program *program)
 		if (executor_loop(all, program) == -1)
         	return; //⚠️return aplicado en apply_redirections
     }
+	// ⚠️ Restaurar señales tras ejecutar comando (builtin o externo)
+	signal_handling();
 }

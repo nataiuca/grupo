@@ -7,7 +7,7 @@ bool	config_fd_redir(int infile, int outfile, t_program *program)
 	{
 		if (dup2(infile, STDIN_FILENO) == -1)
 		{
-			fprintf(stderr,"\033[0;34m ⚠️ DEBUG: infile EN  setup_fd_redirects  \033[0m\n");
+			//fprintf(stderr,"\033[0;34m ⚠️ DEBUG: infile EN  setup_fd_redirects  \033[0m\n");
 			ft_error(program, strerror(errno), "dup2 infile", 1);
 			return (false);
 		}
@@ -17,7 +17,7 @@ bool	config_fd_redir(int infile, int outfile, t_program *program)
 	{
 		if (dup2(outfile, STDOUT_FILENO) == -1)
 		{
-			fprintf(stderr,"\033[0;34m ⚠️ DEBUG: outfile EN  setup_fd_redirects  \033[0m\n");
+			//fprintf(stderr,"\033[0;34m ⚠️ DEBUG: outfile EN  setup_fd_redirects  \033[0m\n");
 			ft_error(program, strerror(errno), "dup2 outfile", 1);
 			return (false);
 		}

@@ -6,7 +6,7 @@
 /*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/25 13:07:50 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/11 12:37:31 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/06/23 09:11:49 by mzolotar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,25 +45,27 @@ static bool	is_delimiter(char *line, char *delimiter)
 			delimiter, ft_strlen(delimiter)) == 0);
 }
 
-/**
- * @brief Processes lines for a here-doc until the delimiter is reached.
- *
- * @param all Pointer to the global structure.
- * @param program Pointer to the main program structure.
- * @param temp Token pointing to the here-doc redirection.
- * @param i Index for current here-doc file.
- * @return 0 on success, -1 on error.
- */
-int	process_here_doc_lines(t_all *all, t_program *program, t_tokens *temp,
-		int i)
+/*
+int	process_here_doc_lines(t_all *all, t_program *program, t_tokens *temp, int i)
 {
 	char		*here_line;
 	t_tokens	*temp_line;
+	//void		(*prev_handler)(int); // para restaurar después
 
 	temp_line = temp;
-	here_line = get_line_str("> ", program);
+
+	// 👉 Establecer handler personalizado para Ctrl+C en heredoc
+	//prev_handler = signal(SIGINT, handler_herequote);
+	signal(SIGINT, handler_herequote);
+	here_line = herequote_hook_rl(program);
 	while (here_line)
 	{
+		//signal(SIGINT, handler_herequote);
+		if (herequote_check_g_atomic(program, here_line)) //se supone que aqui ya entra program->last_exit_status = 130;
+		{
+			//fprintf(stderr, "break con herequote_check_g_atomic\n ");
+			break ;
+		}
 		if (is_delimiter(here_line, temp->next->content))
 		{
 			free(here_line);
@@ -78,10 +80,63 @@ int	process_here_doc_lines(t_all *all, t_program *program, t_tokens *temp,
 		write_and_free_here_line(all->here->expanded_line_here,
 			all->here->fd_array[i]);
 		free(here_line);
-		here_line = get_line_str("> ", program);
+		here_line = herequote_hook_rl(program);
 	}
+	//program->last_exit_status = 130;
 	return (0);
 }
+	*/
+int	process_here_doc_lines(t_all *all, t_program *program, t_tokens *temp, int i)
+{
+	char		*here_line;
+	t_tokens	*temp_line;
+	bool		delimiter_reached = false;
+	int			lineno = 1; // empieza en 1 si quieres simular línea 1 de heredoc
+
+	temp_line = temp;
+	signal(SIGINT, handler_herequote);
+	here_line = herequote_hook_rl(program);
+
+	while (here_line)
+	{
+		if (herequote_check_g_atomic(program, here_line))
+			break ;
+
+		if (is_delimiter(here_line, temp->next->content))
+		{
+			delimiter_reached = true;
+			free(here_line);
+			break ;
+		}
+
+		all->here->expanded_line_here = ft_strdup(here_line);
+		if (!all->here->expanded_line_here)
+			return (free(here_line), -1);
+
+		if (temp_line->next->expand_here == true)
+			check_and_expand_var(all->tokens, &all->here->expanded_line_here, all->meta, program);
+
+		write_and_free_here_line(all->here->expanded_line_here, all->here->fd_array[i]);
+
+		free(here_line);
+		here_line = herequote_hook_rl(program);
+		lineno++; // cuenta líneas para imprimir luego
+	}
+
+	// Si salimos por EOF sin haber alcanzado el delimitador
+	if (!delimiter_reached && !g_atomic)
+	{
+		ft_putstr_fd("minishell: warning: here-document at line ", STDERR_FILENO);
+		ft_putnbr_fd(lineno, STDERR_FILENO);
+		ft_putstr_fd(" delimited by end-of-file (wanted `", STDERR_FILENO);
+		ft_putstr_fd(temp->next->content, STDERR_FILENO);
+		ft_putstr_fd("')\n", STDERR_FILENO);
+	}
+
+	return (0);
+}
+
+
 
 /**
  * @brief Main loop to handle all here-doc entries in the token list.
@@ -137,4 +192,5 @@ void	check_here_doc(t_all *all, t_program *program, t_here *here)
 		return ;
 	}
 	here_doc(all, program, here);
+	//fprintf(stderr, "salgo de here\n ");
 }

@@ -4,26 +4,95 @@
 
 cd . -> ???
 
-✅ echo hola | cat << ls
 ✅ ls > > file
+✅ echo hola |  << ls
+✅ echo hola | cat > file
+✅ echo hola > file | cat
+
+❌ echo hola | cat << ls
+❌ ls | > file
 ❌ ls | > file wc -l 
+ echo hola | > file wc -l            -> file tiene 1
 ❌ echo hola | cat << ls | > file
 ❌ echo hola | > file
-❌ echo hola |  << ls
 
-echo hola | cat > file
-echo hola > file | cat
 
-echo hola |> wc -l                  -> -l: command not found
-echo hola |> grep hola              -> hola: command not found
-echo hola | > file wc -l            -> file tiene 1
+❌ echo hola |> wc -l                  -> -l: command not found
+❌ echo hola |> grep hola              -> hola: command not found
 
-echo hola | > file        # falta comando a la derecha
-> file                    # sin comando
+
+
+❌ echo hola | > file        # falta comando a la derecha
+✅ > file                    # sin comando
+
+
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── dramas──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+add_history -> falla en valgrind -> const char*
+
+CTRD +D -> ./mini ./mini
+✅ CTRD +D -> exit -> espacio demás despues de Ctrl+C y exit demás
+espacio demás despues de Ctrl+C
+ CTRD +D -> espacio demás despues de Ctrl+C y exit demás
+✅ las señales de builtins no se recetean bien- > handler_builtins se ralla despues de builtin + ctrl C
+despues de ctrl c -> ctl +d sale mal de valgrind
+
+
+no sale de valgrind despues de ctrl+c + ctrl+d
+saltos de linea de mas despues de ctrl+c
+
+
 
 //#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── Signal handling: ──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
 
 Press Ctrl+C (should print a new prompt)
 Press Ctrl+D (should exit the shell)
 Press Ctrl+\ (should do nothing)
+
 sleep 10 y sleep 10 CTR+C o CTRL+D
+
+
+sleep 10 | cat				-> Tu minishell debería imprimir un salto de línea y establecer g_atomic = SIGINT.
+yes | head -n 5
+cat | cat
+ls | nonexistent
+cat < archivo_que_no_existe | wc
+sleep 5 | cat < archivo_que_no_existe | wc -w
+sleep 5 | cat < archivo_que_no_existe | grep random
+
+Y verifica si el código de salida refleja correctamente:
+0: éxito
+1: error de redirección
+130: por SIGINT (128 + 2)
+131: por SIGQUIT (128 + 3)
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── Signal handling: TESTEO ──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+1. liena vacia:
+	 Ctrl+C
+	 Ctrl+C  +  Ctrl+D 
+
+2. linea con caracteres: lalala + señales
+	 Ctrl+C
+	 Ctrl+C  +  Ctrl+D 
+
+3. mini error -> tokenizacion + señales
+	 Ctrl+C
+	 Ctrl+C  +  Ctrl+D 
+
+3. 1 comando + señales
+	Ctrl+C
+	 Ctrl+C  +  Ctrl+D 
+
+4. comandos con redirecciones 
+	 Ctrl+C
+	 Ctrl+C  +  Ctrl+D 
+
+5. comendos con pipes 
+	 Ctrl+C
+	 Ctrl+C  +  Ctrl+D 
+
+6. comandos con pipes y redirecciones	
+	 Ctrl+C
+	 Ctrl+C  +  Ctrl+D 
+

@@ -6,7 +6,7 @@
 /*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 08:44:49 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/11 09:31:11 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/06/21 07:51:13 by mzolotar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@
 # include <sys/wait.h>          // wait, waitpid, wait3, wait4
 # include <termios.h>           // tcsetattr, tcgetattr
 # include <unistd.h>            // write, access, read, close, fork, execve,pipe, isatty
+# include <termios.h>
+
 
 //#➵⤐──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌──Includes minishell:──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
 
@@ -51,9 +53,7 @@
 
 //#➵⤐──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌──Globals:──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
 
-//señales:
-//extern volatile sig_atomic_t	g_atomic;
-extern int			g_signal;
+extern volatile sig_atomic_t	g_atomic; 
 
 //#➵⤐──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌──Prototypes:──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
 
@@ -62,12 +62,19 @@ extern int			g_signal;
 
 
 // src/utils/signals.c (/5)  ⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES
-void				handle_signal(int signum);
-void				set_signals(t_program *program);
-void				handler_child(int signum);
-void				handler_herequote(int signum);
+void				handler(int signum);
+void				signal_handling(void);
+void				handler_child(int signum);				//child handler
+void				handler_herequote(int signum);		 //here handler
 void				handler_builtins(int signum);
+bool				catch_interactive(t_program *program, t_all *all, char *input);
 
+
+
+// src/utils/signals.c (/5)  ⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES
+char				*herequote_hook_rl(t_program *program);
+int					herequote_check_g_atomic(t_program *program, char *here_line);
+int					event_hook(void);
 
 
 // src/test_utils.c (borrar)
@@ -83,12 +90,6 @@ void				print_argv_exec(char **argv, int fd);
 void				print_all_test(char *line, char **token, t_tokens *tokens, int fd);
 void				print_all_test_2(char *line, t_tokens *tokens, t_all *all, int fd);
 void				print_all_test_3(char *line, t_tokens *tokens, int fd);
-
-//src/utils/signals.c
-void	sigint_handler(int signal);
-void	catch_signal(void);
-void	catch_interactive(t_program *program, char *input, char *prompt);
-void enable_echoctl(void);
 
 
 #endif

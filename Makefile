@@ -54,6 +54,7 @@ SRCS 					:= \
 						builtins/unset.c \
 						\
 						\
+						executor/executor_single_cmd.c \
 						executor/executor.c \
 						executor/executor_loop.c \
 						executor/get_path_execve.c \
@@ -101,6 +102,7 @@ SRCS 					:= \
 						\
 						\
 						utils/signals.c \
+						utils/herequote_utils.c \
 						\
 						test_utils.c \
 						\

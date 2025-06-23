@@ -6,7 +6,7 @@
 /*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 08:42:51 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/18 11:42:10 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/06/23 09:16:02 by mzolotar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void				minishell_loop(t_program *program);
 
 // src/parcer/tokenizer.c (/5) ✅_NORMA + ✅_DESCRIPCIONES + ⚠️_testeo + ✅_se_usa
 bool				tokenizer(t_all *all, t_program *program);
-bool				handle_reset(t_all *all,  t_program *program);
+void				handle_reset(t_all *all,  t_program *program);
 
 
 // src/parcer/handle_error.c (/5)	// ⚠️_NORMA + ⚠️_testeo  + ⚠️_DESCRIPCIONES + ✅_se_usa
@@ -47,7 +47,7 @@ void				ft_error(t_program *program, const char *msg, const char *arg, int exit_
 int					get_or_set_last_exit_status(int new_status, bool set);
 //char				*get_line(void);									// 🚩 revisar
 char				*get_line_prompt(t_program *program);				// 🚩 solo se usa en dev en vez de readline
-char				*get_line_str(char *str, t_program *program);							//✅_se usa en here_doc
+char				*get_line_str(char *str, t_program *program);							// 🚩 revisar en here_doc se usa readline
 t_tokens			*ft_find_node_n_position(t_tokens *head, int position);
 bool				ft_str_is_empty_or_spaces(const char *str); 	//✅_se_usa
 void				reset_meta_flags(t_metachars *meta, int flag);	//✅_se_usa

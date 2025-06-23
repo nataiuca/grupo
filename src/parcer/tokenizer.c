@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   tokenizer.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: natferna <natferna@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/18 09:06:51 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/18 12:02:43 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/06/23 15:37:46 by natferna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,22 +46,12 @@ bool tokenizer(t_all *all, t_program *program)
 	return (true);
 }
 
-/**
- * @brief Resets the shell's state after command execution, freeing all
- * allocated structures and preparing for the next command line.
- *
- * @param all A pointer to the `t_all` structure to be reset.
- * @param program A pointer to the `t_program` to get the new prompt.
- * @return Void. Resets internal shell state.
- */
-bool handle_reset(t_all *all,  t_program *program)
+
+
+void handle_reset(t_all *all,  t_program *program)
 {
 	free_all_structs(all);
-
-	all->line = get_line_prompt(program);	 //dev
-	//all->line = readline(get_prompt(program));
-	
-	if (!all->line)
-		return (false);
-	return (true);
+	all->line = readline(get_prompt(program));
+	//all->line = get_line_prompt(program); 
 }
+

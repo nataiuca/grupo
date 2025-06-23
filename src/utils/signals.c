@@ -1,69 +1,96 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   signals.c                                          :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/19 21:51:14 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/10 22:18:17 by mzolotar         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+
 
 #include "minishell.h"
 
-void enable_echoctl(void)
-{
-	struct termios term;
+//Gestiona señales en el proceso principal/padre (tu shell interactiva).
+//🟢 Uso típico: Shell interactiva cuando estás esperando comandos del usuario.
 
-	if (tcgetattr(STDIN_FILENO, &term) == -1)
+void	handler(int signum)
+{
+	if (signum == SIGINT)
 	{
-		perror("tcgetattr");
+		g_atomic = 130;
+		write(STDOUT_FILENO, "^C\n", 3);
+		rl_on_new_line();			//se posiciona en una nueva línea.
+		rl_replace_line("", 0);		//borra la línea escrita.
+		rl_redisplay();				// muestra un nuevo prompt limpio.
+	}
+	if (signum == SIGQUIT)
+		ft_putstr("Quit (core dumped)\n");
+}
+		
+
+//Asocia las señales con los manejadores adecuados al iniciar tu shell.
+//🟢 Uso típico: Al comienzo de la shell para preparar las señales correctamente.
+void	signal_handling(void)
+{
+	if (signal(SIGINT, handler) == SIG_ERR
+		|| signal(SIGQUIT, SIG_IGN) == SIG_ERR)
+	{
+		perror("signal_handler: signal error\n");
 		exit(EXIT_FAILURE);
 	}
-	term.c_lflag |= ECHOCTL;  // <-- ACTIVA echo de caracteres de control
-	if (tcsetattr(STDIN_FILENO, TCSANOW, &term) == -1)
+}
+//Manejador de señales dentro del proceso hijo que ejecuta comandos.
+//Uso típico: Se asigna en hijos después del fork() (antes del exec()).
+void	handler_child(int signum)
+{
+	if (signum == SIGINT|| signum == SIGQUIT)
 	{
-		perror("tcsetattr");
-		exit(EXIT_FAILURE);
+		g_atomic = 130;
+		write(STDOUT_FILENO, "err3\n", 5); //modir, testeo
+		exit(0);
+	}
+}
+//Controla interrupciones mientras se está leyendo un heredoc (<<).
+//Uso típico: Cuando estás leyendo el contenido de un heredoc. Esto evita que el heredoc se quede colgado en Ctrl+C.
+void	handler_herequote(int signum)
+{
+	if (signum == SIGINT)
+	{
+		g_atomic = 130;
+		write(STDOUT_FILENO, "^C2", 3);
+		rl_done = 1;			//Setea rl_done = 1; → esto hace que readline finalice y devuelva.
+	}
+}
+//Maneja señales durante la ejecución de builtins como cd, echo, export, etc., sin salir del proceso shell.
+//Uso típico: Cuando ejecutas un builtin que no requiere fork (para que el prompt se limpie sin matar tu minishell).
+void	handler_builtins(int signum)
+{
+	if (signum == SIGINT)
+	{
+		g_atomic = 130;
+		write(STDOUT_FILENO, "err4\n", 5); //modir, testeo
 	}
 }
 
-void sigint_handler(int signal)
+bool	catch_interactive(t_program *program, t_all *all, char *input)
 {
-	(void)signal;
-	write(STDOUT_FILENO, "^C\n", 3);
-	rl_replace_line("", 0);
-	rl_on_new_line();
-	rl_redisplay();
-}
+	(void)program;		//❌ quitar
+	(void)all;			//❌ quitar
 
-/*
-* catch control-c with handler and control-\ ignoring.
-* SIGINT control-c
-* SIGQUIT control-\
-*/
-void	catch_signal(void)
-{
-	signal (SIGINT, sigint_handler);
-	signal (SIGQUIT, SIG_IGN);
-}
-
-/*
-* catch control-d, get null input and print exit.
-*/
-void catch_interactive(t_program *program, char *input, char *prompt)
-{
-	(void)program;
-    (void)prompt;
 	if (!input)
 	{
-		printf("\033[1A");  // sube una línea
-		printf("\r");       // cursor al inicio de la línea
-		printf("\033[K");   // borra hasta final de línea
-		printf("exit\n");
-		free_program(program);
-        exit(0);
+		if (g_atomic == 2 || g_atomic == 0) // Ctrl+D (no error de signal)
+		{
+			write(STDOUT_FILENO, "exit1\n", 6); //modif, testeo
+			g_atomic = 0;
+			return true;
+		}
+		else if (g_atomic == 130)
+		{
+			write(STDOUT_FILENO, "exit2\n", 6); //modif, testeo
+			g_atomic = 0;
+			return true;
+		}
+		else // Ctrl+C u otro, no imprimir exit
+		{
+			write(STDOUT_FILENO, "exit3", 5); //modif, testeo
+			g_atomic = 0;
+			return true;
+		}
 	}
+	return false;
 }
+
 

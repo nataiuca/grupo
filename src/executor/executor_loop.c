@@ -1,14 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   executor_loop.c                                    :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/09 11:16:11 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/19 10:33:10 by mzolotar         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+
 
 # include "minishell.h"
 
@@ -44,42 +34,6 @@ static int	handle_fork_error(t_program *program, t_all *all, t_tokens *original,
 	all->tokens = original;
 	return (-1);
 }
-
-/*
-int	fork_command_loop(t_program *program, t_all *all, t_tokens *original)
-{
-	t_tokens	*curr;
-	t_all		*local_all;
-	t_tokens	*cmd_token;
-	int			i;
-
-	i = 0;
-	curr = all->tokens;
-	while (curr)
-	{
-		cmd_token = skip_redirections(curr);
-		if (!cmd_token)
-		{
-			curr = curr->next;
-			continue;
-		}
-		if (!update_args(all->exec, cmd_token, program)) 		// Actualiza los args para el comando actual
-			return (handle_fork_error(program, all, original, i));
-		local_all = all;			// Asigna los tokens del comando actual a local_all
-		local_all->tokens = curr;
-		all->exec->pids[i] = fork_command(local_all, cmd_token, i, program);		 // Forkea el comando actual
-		if (all->exec->pids[i] == -1 || check_failed_redirection_child(all->exec->pids[i], program))
-			return (handle_fork_error(program, all, original, i));
-		close_unused_pipes_in_parent(all->exec, i);
-		i++;
-		while (curr && curr->type != pipe_type)		// Avanza curr hasta el siguiente pipe, y luego al siguiente token
-			curr = curr->next;
-		if (curr)
-			curr = curr->next;
-	}
-	return (0);
-}
-	*/
 
 static int	should_skip_command(t_tokens **curr, t_tokens **cmd_token)
 {

@@ -6,7 +6,7 @@
 /*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 08:49:48 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/19 10:34:05 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/06/21 11:46:52 by mzolotar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,12 @@ int					fork_command_loop(t_program *program, t_all *all);
 //static void		finalize_executor(t_all *all, t_program *program);
 int					executor_loop(t_all *all, t_program *program);
 
-// src/executor/executor.c (/5)		⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES + //❌ revisar check_failed_redirection_child con las señales
+// src/executor/executor_single_cmd.c (/5)		⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
+int check_child(t_program *program, t_all *all);
+void fork_and_run_single_cmd(t_all *all, t_program *program, t_tokens *curr);
+void run_single_command(t_all *all, t_program *program);
+
+// src/executor/executor.c (/5)		⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
 bool				must_use_env_builtin(char *cmd);
 bool				is_forbidden_env_path(char *cmd);
 bool				must_use_pwd_builtin(char *cmd);
@@ -116,9 +121,6 @@ bool				is_forbidden_pwd_path(char *cmd);
 pid_t				fork_and_exec_command(t_all *all, t_tokens *curr, int i, t_program *program);
 int					check_failed_redir_child(pid_t pid, t_program *program); 		//❌ revisar
 void				wait_child(t_all *all, t_program *program);
-int					check_child(t_program *program, t_all *all);
-void				fork_and_run_single_cmd(t_all *all, t_program *program, t_tokens *curr);
-void				run_single_command(t_all *all, t_program *program);
 void				ft_exec(t_all *all, t_program *program);
 
 // src/executor/executor_utils.c (4/5) ⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES + 🚩_revisar si se usa
