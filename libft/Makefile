@@ -70,6 +70,8 @@ ft_open_fd.c \
 ft_strcmp.c \
 ft_strncpy.c \
 ft_strjoin3.c \
+ft_putstr.c \
+ft_write.c \
 
 OBJS		:=	$(SRC:.c=.o)
 

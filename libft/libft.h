@@ -6,7 +6,7 @@
 /*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/28 08:48:36 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/10 08:47:01 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/06/20 08:15:17 by mzolotar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,8 @@ int			ft_open_fd(char *path, int flags, mode_t mode);
 int			ft_strcmp(const char *s1, const char *s2);
 char		*ft_strncpy(char *dest, const char *src, unsigned int n);
 char		*ft_strjoin3(const char *s1, const char *s2, const char *s3);
+void		ft_putstr(char *s);
+ssize_t		ft_write(int fd, const void *buff, size_t size);
 
 // printf:
 int			ft_printf(char const *format, ...);
