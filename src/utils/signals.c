@@ -10,7 +10,10 @@ void	handler(int signum)
 	if (signum == SIGINT)
 	{
 		g_atomic = 130;
-		write(STDOUT_FILENO, "^C\n", 3);
+		if (!isatty(STDIN_FILENO))
+			write(STDOUT_FILENO, "^C\n", 3);
+		else
+			write(STDOUT_FILENO, "\n", 1);
 		rl_on_new_line();			//se posiciona en una nueva línea.
 		rl_replace_line("", 0);		//borra la línea escrita.
 		rl_redisplay();				// muestra un nuevo prompt limpio.
