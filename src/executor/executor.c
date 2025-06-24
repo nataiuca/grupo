@@ -166,21 +166,24 @@ static void	exec_and_exit_child(t_all *all, t_tokens *curr, t_program *program, 
 }
 
 
-pid_t	fork_and_exec_command(t_all *all, t_tokens *curr, int i, t_program *program)
+pid_t fork_and_exec_command(t_all *all, t_tokens *curr, int i, t_program *program)
 {
-	pid_t pid;
+    pid_t pid;
 
-	pid = fork();
-	if (pid < 0)
-		handle_fork_error(program, all);
-	if (pid == 0)
-	{
-		signal(SIGINT, handler_child);
-		signal(SIGQUIT, SIG_DFL);
-		exec_and_exit_child(all, curr, program, i);
-	}
-	//fprintf(stderr,"\033[0;34m ⚠️DEBUG: p->l_e_s en fork_command: %d \n  \033[0m\n", program->last_exit_status);
-	return (pid);
+    pid = fork();
+    if (pid < 0)
+        handle_fork_error(program, all);
+
+    if (pid == 0)
+    {
+        /* — Contexto HIJO — */
+        setup_signals(0);      /* 0 = hijo: child_signal_handler maneja SIGINT/SIGQUIT */
+        exec_and_exit_child(all, curr, program, i);
+        /* exec_and_exit_child nunca debe regresar; si lo hace, salimos */
+        exit(EXIT_FAILURE);
+    }
+
+    return pid;
 }
 
 int	check_failed_redir_child(pid_t pid, t_program *program)
@@ -210,55 +213,50 @@ int	check_failed_redir_child(pid_t pid, t_program *program)
 }
 
 
-void	wait_child(t_all *all, t_program *program)
+void wait_child(t_all *all, t_program *program)
 {
-	int		i;
-	int		status;
-	int		num_pids;
-	int		atom=0;
+    int i;
+    int status;
+    int num_pids;
+    int atom = 0;
 
-	
-	//no ignoras la señal en el padre mientras espera.
-	signal(SIGINT, SIG_IGN);
-	signal(SIGQUIT, handler);
-	num_pids = all->exec->num_pipes + 1;
-	i = 0;
-	while (i < num_pids)
-	{
-		waitpid(all->exec->pids[i], &status, 0);
-		if (WIFSIGNALED(status))
-		{
-			if (WTERMSIG(status) == SIGINT)
-				atom = SIGINT;
-			else if (WTERMSIG(status) == SIGQUIT)
-				atom = SIGQUIT;
-		}
-		i++;
-	}
-	// Obtener código de retorno del último hijo
-	if (WIFEXITED(status))
-	{
-		program->last_exit_status = WEXITSTATUS(status);
-		//fprintf(stderr, "DEBUG 1 : testeito en wait_child->exit_status: %d\n ", program->last_exit_status);
-	}
-	else if (WIFSIGNALED(status))
-	{
-		int signal_num = WTERMSIG(status);
-		program->last_exit_status = 128 + signal_num;
-		//fprintf(stderr, "DEBUG 2: testeito en wait_child->exit_status: %d\n ", program->last_exit_status);
-		g_atomic = 128 + signal_num;
-	}
-	// Mensajes finales
-	if (g_atomic == SIGQUIT)
-		ft_error(program, "Quit (core dumped)", NULL, 131);
-	if (g_atomic || atom)
-	{
-		//fprintf(stderr, "\nDEBUG 2: testeito en wait_child->g_atomic: %d\n ", g_atomic);
-		//fprintf(stderr, "DEBUG 2: testeito en wait_child->atom: %d\n ", atom);
-		write(STDOUT_FILENO, "err2\n", 5); //tu bien ->//modir, testeo
-	}
-	signal(SIGINT, handler_builtins); // Restaurar señales
-	signal(SIGQUIT, SIG_IGN);
+    /* Padre ignora SIGINT y SIGQUIT mientras espera hijos */
+    sigaction(SIGINT, &(struct sigaction){ .sa_handler = SIG_IGN }, NULL);
+    sigaction(SIGQUIT, &(struct sigaction){ .sa_handler = SIG_IGN }, NULL);
+
+    num_pids = all->exec->num_pipes + 1;
+    for (i = 0; i < num_pids; ++i)
+    {
+        waitpid(all->exec->pids[i], &status, 0);
+        if (WIFSIGNALED(status))
+        {
+            if (WTERMSIG(status) == SIGINT)
+                atom = SIGINT;
+            else if (WTERMSIG(status) == SIGQUIT)
+                atom = SIGQUIT;
+        }
+    }
+
+    /* Código de salida del último hijo */
+    if (WIFEXITED(status))
+        program->last_exit_status = WEXITSTATUS(status);
+    else if (WIFSIGNALED(status))
+    {
+        int signo = WTERMSIG(status);
+        program->last_exit_status = 128 + signo;
+        g_atomic = 128 + signo;
+    }
+
+    /* Mensaje en caso de core dump */
+    if (g_atomic == SIGQUIT)
+        ft_error(program, "Quit (core dumped)", NULL, 131);
+
+    /* Si hubo señal, imprimimos “^C\n” o “Quit” según atom */
+    if (g_atomic || atom)
+        write(STDOUT_FILENO, "^C\n", 3);
+
+    /* Restaurar manejadores para prompt interactivo */
+    setup_signals(1);
 }
 
 void ft_exec(t_all *all, t_program *program)
@@ -280,5 +278,5 @@ void ft_exec(t_all *all, t_program *program)
         	return; //⚠️return aplicado en apply_redirections
     }
 	// ⚠️ Restaurar señales tras ejecutar comando (builtin o externo)
-	signal_handling();
+	setup_signals(1);
 }

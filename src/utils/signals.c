@@ -1,70 +1,73 @@
-
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   signals.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: natferna <natferna@student.42madrid.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/24 01:41:23 by natferna          #+#    #+#             */
+/*   Updated: 2025/06/24 02:01:22 by natferna         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "minishell.h"
 
-//Gestiona señales en el proceso principal/padre (tu shell interactiva).
-//🟢 Uso típico: Shell interactiva cuando estás esperando comandos del usuario.
+// Variable global definida en algún .c
+extern volatile sig_atomic_t g_atomic;
 
-void	handler(int signum)
+// Padre (prompt interactivo): solo handle SIGINT
+void parent_sigint_handler(int signo)
 {
-	if (signum == SIGINT)
-	{
-		g_atomic = 130;
-		if (!isatty(STDIN_FILENO))
-			write(STDOUT_FILENO, "^C\n", 3);
-		else
-			write(STDOUT_FILENO, "\n", 1);
-		rl_on_new_line();			//se posiciona en una nueva línea.
-		rl_replace_line("", 0);		//borra la línea escrita.
-		rl_redisplay();				// muestra un nuevo prompt limpio.
-	}
-	if (signum == SIGQUIT)
-		ft_putstr("Quit (core dumped)\n");
+    if (signo == SIGINT)
+    {
+        g_atomic = 1;
+        rl_replace_line("", 0);
+        write(STDOUT_FILENO, "\n", 1);
+        rl_on_new_line();
+        rl_redisplay();
+    }
 }
-		
 
-//Asocia las señales con los manejadores adecuados al iniciar tu shell.
-//🟢 Uso típico: Al comienzo de la shell para preparar las señales correctamente.
-void	signal_handling(void)
+// Hijo (tras fork, antes de execve): handle SIGINT y SIGQUIT
+void child_signal_handler(int signo)
 {
-	if (signal(SIGINT, handler) == SIG_ERR
-		|| signal(SIGQUIT, SIG_IGN) == SIG_ERR)
-	{
-		perror("signal_handler: signal error\n");
-		exit(EXIT_FAILURE);
-	}
+    if (signo == SIGINT)
+        g_atomic = 130;
+    else if (signo == SIGQUIT)
+        g_atomic = 131;
 }
-//Manejador de señales dentro del proceso hijo que ejecuta comandos.
-//Uso típico: Se asigna en hijos después del fork() (antes del exec()).
-void	handler_child(int signum)
+void handler_herequote(int signum)
 {
-	if (signum == SIGINT|| signum == SIGQUIT)
-	{
-		g_atomic = 130;
-		write(STDOUT_FILENO, "err3\n", 5); //modir, testeo
-		exit(0);
-	}
+    if (signum == SIGINT)
+    {
+        g_atomic = 130;
+        write(STDOUT_FILENO, "^C\n", 3);
+        rl_done = 1;
+    }
 }
-//Controla interrupciones mientras se está leyendo un heredoc (<<).
-//Uso típico: Cuando estás leyendo el contenido de un heredoc. Esto evita que el heredoc se quede colgado en Ctrl+C.
-void	handler_herequote(int signum)
+
+// Instala los handlers según el contexto:
+//  parent = 1 → shell padre (prompt)
+//  parent = 0 → procesos hijos
+void setup_signals(int parent)
 {
-	if (signum == SIGINT)
-	{
-		g_atomic = 130;
-		write(STDOUT_FILENO, "^C2", 3);
-		rl_done = 1;			//Setea rl_done = 1; → esto hace que readline finalice y devuelva.
-	}
-}
-//Maneja señales durante la ejecución de builtins como cd, echo, export, etc., sin salir del proceso shell.
-//Uso típico: Cuando ejecutas un builtin que no requiere fork (para que el prompt se limpie sin matar tu minishell).
-void	handler_builtins(int signum)
-{
-	if (signum == SIGINT)
-	{
-		g_atomic = 130;
-		write(STDOUT_FILENO, "err4\n", 5); //modir, testeo
-	}
+    struct sigaction sa;
+
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART;
+
+    if (parent)
+        sa.sa_handler = parent_sigint_handler;
+    else
+        sa.sa_handler = child_signal_handler;
+
+    sigaction(SIGINT, &sa, NULL);
+
+    if (parent)
+        // Padre ignora SIGQUIT (Ctrl-\)
+        sigaction(SIGQUIT, &(struct sigaction){ .sa_handler = SIG_IGN }, NULL);
+    else
+        sigaction(SIGQUIT, &sa, NULL);
 }
 
 bool	catch_interactive(t_program *program, t_all *all, char *input)

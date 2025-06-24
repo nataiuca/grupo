@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   datatypes.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: natferna <natferna@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 08:43:48 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/19 10:25:45 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/06/24 01:32:37 by natferna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,9 @@ typedef struct s_program
 	char			prompt[PROMPT_SIZE];	
 //--------env--------//
 	char			**envp_copy;		// **"split" (**matrix) de envp
-	t_env			*env;				// lista enlazada del entorno								
+	t_env			*env;				// lista enlazada del entorno
+//--------modo interactivo--------//
+bool			is_interactive;								
 }					t_program;
 
 typedef struct s_tokens

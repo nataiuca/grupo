@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: natferna <natferna@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 08:44:49 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/21 07:51:13 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/06/24 02:22:34 by natferna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,13 +62,11 @@ extern volatile sig_atomic_t	g_atomic;
 
 
 // src/utils/signals.c (/5)  ⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES
-void				handler(int signum);
-void				signal_handling(void);
-void				handler_child(int signum);				//child handler
-void				handler_herequote(int signum);		 //here handler
-void				handler_builtins(int signum);
-bool				catch_interactive(t_program *program, t_all *all, char *input);
-
+void parent_sigint_handler(int signo);
+void child_signal_handler(int signo);
+void handler_herequote(int signum);
+void setup_signals(int parent);
+bool	catch_interactive(t_program *program, t_all *all, char *input);
 
 
 // src/utils/signals.c (/5)  ⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES

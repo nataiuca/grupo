@@ -15,91 +15,72 @@ int check_child(t_program *program, t_all *all)
 	return (0);
 }
 
+/* executor.c */
 
 void fork_and_run_single_cmd(t_all *all, t_program *program, t_tokens *curr)
 {
     pid_t pid;
-    int status;
-	int check_child_result;
+    int   status;
+    int   check_child_result;
 
-	signal(SIGINT, handler_child);
-	signal(SIGQUIT, SIG_DFL);
     pid = fork();
     if (pid < 0)
     {
         ft_error(program, MSG_ERR_FORK, NULL, 1);
         return;
     }
-    if (pid == 0) // Proceso hijo
+    if (pid == 0)
     {
-		check_child_result = check_child(program, all);
-		if (check_child_result == 1)
-			free_and_exit_child(all, program, program->last_exit_status);
-		if (check_child_result == 2)
-			free_and_exit_child(all, program, 0);
+        /* — Contexto HIJO — */
+        setup_signals(0);  /* child: SIGINT→130, SIGQUIT→131 */
+        check_child_result = check_child(program, all);
+        if (check_child_result == 1)
+            free_and_exit_child(all, program, program->last_exit_status);
+        if (check_child_result == 2)
+            free_and_exit_child(all, program, 0);
         execute_command(all, program, curr);
-        exit(EXIT_FAILURE);			// Si exec_cmd falla y regresa, forzamos salida (por seguridad)
+        exit(EXIT_FAILURE);
     }
-    else // Proceso padre
+    else
     {
-		signal(SIGINT, SIG_IGN);
-		signal(SIGQUIT, handler);
-
+        /* — Contexto PADRE — */
         waitpid(pid, &status, 0);
 
-		if (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
-			g_atomic = SIGINT+128;
-		signal(SIGINT, handler_builtins);
-        program->last_exit_status = WEXITSTATUS(status);
+        setup_signals(1);  /* padre: Ctrl-C limpia línea, Ctrl-\ ignorado */
 
-		// ✅ Restaurar señales para readline u otros prompts futuros
-		signal_handling();
-		if (g_atomic)
-		{
-			//fprintf(stderr, "\nDEBUG: g_atomic: %d\n ", g_atomic);//
-			program->last_exit_status = 130;  //tu bien
-			write(STDOUT_FILENO, "err1\n", 5); //tu si en caso de sleep 10 + ctrl+c
-			//ft_putstr("err3\n"); //tu si en caso de sleep 10 + ctrl+c
-		}
+        if (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
+        {
+            write(STDOUT_FILENO, "^C\n", 3);
+            program->last_exit_status = 130;
+        }
+        else
+        {
+            program->last_exit_status = WEXITSTATUS(status);
+        }
     }
 }
 
-
-
-
-	
-
+/* builtins_or_pipe.c */
 void run_single_command(t_all *all, t_program *program)
 {
-	t_tokens *first_cmd = find_cmd (all->tokens);
+    t_tokens *first_cmd = find_cmd(all->tokens);
 
-	if (first_cmd && is_forbidden_env_path(first_cmd->content))
-	{
-		ft_error(program, "bash: env: external call not allowed", NULL, 127);
-		return;
-	}
-	if (first_cmd && is_forbidden_pwd_path(first_cmd->content))
-	{
-		ft_error(program, "bash: pwd: external call not allowed", NULL, 127);
-		return;
-	}
-	if (first_cmd && (check_builtin(first_cmd->content) || must_use_env_builtin(first_cmd->content) || must_use_pwd_builtin(first_cmd->content)))
-	{
-		if (!apply_redir(all, program))
-			return;
+    /* ... casos de forbidden/env/pwd ... */
 
-		// Ignorar SIGINT como en el padre en fork
-		signal(SIGINT, SIG_IGN);
-		signal(SIGQUIT, handler);
+    if (first_cmd && check_builtin(first_cmd->content))
+    {
+        if (!apply_redir(all, program))
+            return;
 
-		ft_builtin(all, program);
+        /* Mismo comportamiento que en el prompt */
+        setup_signals(1);
 
-		// Restaurar handler
-		signal(SIGINT, handler);
-		signal(SIGQUIT, SIG_IGN);
+        ft_builtin(all, program);
 
-		return;
-	}
-	fork_and_run_single_cmd(all, program, first_cmd);
-	
+        /* Y lo restauramos otra vez */
+        setup_signals(1);
+        return;
+    }
+
+    fork_and_run_single_cmd(all, program, first_cmd);
 }
