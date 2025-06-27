@@ -1,33 +1,31 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   herequote_utils.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/26 10:42:34 by mzolotar          #+#    #+#             */
+/*   Updated: 2025/06/26 10:42:35 by mzolotar         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 
 #include "minishell.h"
 
-#include <signal.h>
-
-/*
- * hook para leer el heredoc, usando sigaction() en lugar de signal()
- */
-char *herequote_hook_rl(t_program *program)
+char	*herequote_hook_rl(t_program *program)
 {
-    char                *line;
-    struct sigaction    sa, old_sa;
+	char		*line;
 
-    (void)program;
+	rl_event_hook = event_hook;
+	signal(SIGINT, handler_herequote);
 
-    /* Instalamos handler de SIGINT solo para heredoc */
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = SA_RESTART;           /* read‐line se reinicia */
-    sa.sa_handler = handler_herequote;
-    sigaction(SIGINT, &sa, &old_sa);
-
-    /* Callback de readline para comprobar g_atomic */
-    rl_event_hook = event_hook;
-    line = readline("> ");
-
-    /* Restauramos el handler anterior de SIGINT */
-    rl_event_hook = NULL;
-    sigaction(SIGINT, &old_sa, NULL);
-
-    return line;
+	(void)program;
+	
+	line = readline(">");
+	//fprintf(stderr, "g_atomic dentro de here: %d\n ", g_atomic);
+	rl_event_hook = NULL;
+	return (line);
 }
 
 int	herequote_check_g_atomic(t_program *program, char *here_line)

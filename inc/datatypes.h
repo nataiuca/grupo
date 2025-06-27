@@ -6,7 +6,7 @@
 /*   By: natferna <natferna@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 08:43:48 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/24 01:32:37 by natferna         ###   ########.fr       */
+/*   Updated: 2025/06/26 22:23:25 by natferna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,9 +82,7 @@ typedef struct s_program
 	char			prompt[PROMPT_SIZE];	
 //--------env--------//
 	char			**envp_copy;		// **"split" (**matrix) de envp
-	t_env			*env;				// lista enlazada del entorno
-//--------modo interactivo--------//
-bool			is_interactive;								
+	t_env			*env;				// lista enlazada del entorno								
 }					t_program;
 
 typedef struct s_tokens
@@ -112,15 +110,23 @@ typedef struct s_exec
 
 typedef struct s_metachars
 {
+	//---------acces_to_program---------------------
 	t_program		*program_acces;
+	//---------parce_aux_splits---------------------
 	char			**allow_op;        		// < > | << >> 		
 	char			**var;             		// $				
 	char			**unexpected_token;		//  `newline' `|' `>' `<' `>>' `<<'
+	//---------parce_aux_vars---------------------
 	int				i_index;    				//✅_se usa reservado para el uso de check_spaces_line() y otras funciones
 	int				j_index;        			//✅_se usa reservado para el uso de check_spaces_line() y otras funciones
 	int				x_index;					//✅_solo se usa en ft_split_with_quotes
-	bool			in_single_quote;   		//✅_se usa reservado para el uso de check_spaces_line() y otras funciones
-	bool			in_double_quote;   		//✅_se usa reservado para el uso de check_spaces_line() y otras funciones
+	bool			in_single_quote;   			//✅_se usa reservado para el uso de check_spaces_line() y otras funciones
+	bool			in_double_quote;   			//✅_se usa reservado para el uso de check_spaces_line() y otras funciones
+	//---------type_flags---------------------
+	bool			cmd_seen;
+	bool			pipe_seen;
+	bool			expecting_cmd;
+	bool 			redir_pending;
 }					t_metachars;
 
 typedef struct s_here
@@ -128,7 +134,7 @@ typedef struct s_here
 	int				here_doc_num;								
 	int				fd_array[HERE_DOCS_MAX];					
 	char			*here_name_docs[HERE_DOCS_MAX];				
-	char			*expanded_line_here; 		// con malloc	
+	char			*expanded_line_here; 					// con malloc	
 	char			*base_cwd;
 }					t_here;
 
@@ -140,10 +146,14 @@ typedef struct s_all
 	t_tokens		*tokens;
 	t_tokens		*tokens_head;
 	char			**token;
-	char			*line; 
+	char			*line;
+	 bool        needs_more_input; 
 }					t_all;
 
-//#➵⤐──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌──Prototypes:──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+//#➵⤐╌╌➣⋆➣╌─⤏➵•➵⤐╌╌➣⋆➣╌╌─...──➣⋆➣╌⤏➵•➵⤐╌╌➣⋆➣╌╌➔#
+
+//#➵⤐╌╌➣⋆➣╌─⤏➵•➵⤐╌╌➣⋆➣╌╌─Utilities──➣⋆➣╌⤏➵•➵⤐╌╌➣⋆➣╌╌➔#
 
 // src/parcer/init_list.c (5/5) ✅_NORMA + ✅_DESCRIPCIONES + ⚠️_testeo + ✅_se usa
 t_tokens			*find_last_node(t_tokens *tokens);
@@ -153,7 +163,8 @@ t_tokens			*find_last_node(t_tokens *tokens);
 void				init_list(t_tokens **tokens, char **split_str, t_program *program);
 
 
-//--STRUCTS──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+//#➵⤐╌╌➣⋆➣╌─⤏➵•➵⤐╌╌➣⋆➣╌╌─Environment──➣⋆➣╌⤏➵•➵⤐╌╌➣⋆➣╌╌➔#
+
 // src/parcer/init_structures.c (5/5) // ⚠️_NORMA + ⚠️_testeo + ✅_DESCRIPCIONES + ✅_se usa
 void				init_program(t_program *program, char **envp);
 t_exec				*init_exec(t_program *program);
@@ -171,7 +182,7 @@ bool				init_meta_splits(t_metachars *meta, t_program *program);
 // src/parcer/free_structs.c (/5)	// ⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
 void				free_exec(t_exec *exec);
 void				free_meta_struct(t_metachars *meta);
-void				free_here(t_here *here);
+void				free_here(t_here **ph);
 void				free_program(t_program *program);
 void				free_all_structs(t_all *all);
 

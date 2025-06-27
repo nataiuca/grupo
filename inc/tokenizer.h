@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   tokenizer.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: natferna <natferna@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 08:42:51 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/23 09:16:02 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/06/26 21:32:17 by natferna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,9 +27,10 @@
 # define ERR_GETCWD				"getcwd error, check your actual directory... returning to home"
 # define ERR_BASH				"bash: syntax error near unexpected token"
 
-//#➵⤐──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌──Prototypes:──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+//#➵⤐╌╌➣⋆➣╌─⤏➵•➵⤐╌╌➣⋆➣╌╌─Parsing──➣⋆➣╌⤏➵•➵⤐╌╌➣⋆➣╌╌➔#
 
 //➛ src/parcer/minishell_loop.c (/5) ⚠️_NORMA + ⚠️_DESCRIPCIONES c + ✅_se_usa
+char *get_input_line(t_program *program, t_all *all);
 void				minishell_loop(t_program *program);
 
 
@@ -100,35 +101,28 @@ void				check_and_quit_quotes_token(t_tokens *tokens, t_metachars *meta);
 
 
 //--check_type_tokens──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
-// src/parcer/tokens_type_check_type.c (/5)  ✅_NORMA + ⚠️_testeo + ✅_DESCRIPCIONES + ✅_se_usa
-bool				try_set_as_redirection(t_tokens *current, t_tokens *head);
-bool				try_set_as_argument_if_unused(t_tokens *current, t_tokens *head);
-bool				assign_token_type(t_tokens *current, t_tokens *head);
-void				process_tokens(t_tokens *tokens, bool *has_temp_tokens);
-void				check_type_tokens(t_tokens *tokens);
+// src/parcer/tokens_type_check_type.c (5/5)  ⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES + ✅_se_usa
+bool				try_set_as_redirection(t_tokens *current, t_tokens *head, t_metachars *meta);
+bool				try_set_as_redir_follower(t_tokens *current, t_tokens *head, t_metachars *meta);
+bool				assign_token_type(t_tokens *current, t_tokens *head, t_metachars *meta);
+void				process_tokens(t_tokens *tokens, bool *has_temp_tokens, t_metachars *meta);
+void				check_type_tokens(t_tokens *tokens, t_metachars *meta);
 
-// src/parcer/tokens_type_command_check.c (4/5)  ✅_NORMA + ⚠️_testeo + ✅_DESCRIPCIONES + ✅_se_usa
-bool				check_command(t_tokens *current, t_tokens *head);
-bool				check_argument(t_tokens *current, t_tokens *head);
-bool				try_set_as_command(t_tokens *current, t_tokens *head);
-bool				try_set_as_argument(t_tokens *current, t_tokens *head);
+// src/parcer/tokens_type_command_check.c (4/5)  ⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES + ✅_se_usa
+bool				is_command_after_pipe(t_tokens *current, t_tokens *prev);
+bool				is_first_command(t_tokens *current);
+bool				check_command(t_tokens *current, t_tokens *head, t_metachars *meta);
+bool				try_set_as_command(t_tokens *current, t_tokens *head, t_metachars *meta);
+bool				try_set_as_argument(t_tokens *current, t_tokens *head, t_metachars *meta);
 
-// src/parcer/tokens_type_redir_check.c (/5)  ✅_NORMA + ⚠️_testeo +✅_DESCRIPCIONES + ✅_se_usa
+// src/parcer/tokens_type_redir_check.c (/5)  ⚠️_NORMA + ⚠️_testeo +⚠️_DESCRIPCIONES + ✅_se_usa
 bool				is_redir(t_tokens *current);
 t_type				check_redir(t_tokens *current);
 bool				invalid_after_redir(t_tokens *current, t_tokens *head, t_type expected_redir);
-bool				is_after_redir_with_path(t_tokens *current, t_tokens *head, t_type expected_redir);
 void				assign_redirection_type( t_tokens *current, t_tokens *head);
 
-// src/parcer/tokens_type_redir_context_check.c (/5)  ✅_NORMA + ⚠️_testeo +✅_DESCRIPCIONES + ✅_se_usa
-bool				is_cmd_aft_redir_wit_prev_cmd(t_tokens *current, t_tokens *prev, t_tokens *head);
-bool				is_command_after_redir(t_tokens *current, t_tokens *prev);
-bool				is_command_after_pipe(t_tokens *current, t_tokens *prev);
-bool				any_command_before(t_tokens *node, t_tokens *head);
-bool				is_first_command(t_tokens *current);
-
-// src/parcer/tokens_type_pipe_check.c (/5)  ✅_NORMA + ⚠️_testeo + ✅_DESCRIPCIONES + ✅_se_usa
-bool				try_set_as_pipe(t_tokens *current, t_tokens *next_token);
+// src/parcer/tokens_type_pipe_check.c (/5)  ⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES + ✅_se_usa
+bool				try_set_as_pipe(t_tokens *current, t_tokens *next_token, t_metachars *meta);
 bool				check_pipe(t_tokens *current);
 //--check_type_tokens_end──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
 
@@ -143,8 +137,8 @@ bool				check_bash_before_here(t_tokens *tokens);
 bool				check_bash_pipe_before_here(t_tokens *tokens);
 bool				check_open_pipe_token(t_tokens *tokens);
 bool				check_bash_error_token(t_tokens *tokens);
-bool				check_bash_after_here(t_tokens *tokens);
-bool				check_bash_pipe_error(t_tokens *tokens, t_program *program);
+ bool check_bash_after_here(t_tokens *tokens, t_all *all);
+bool check_bash_pipe_error(t_tokens *tokens, t_program *program, t_all *all);
 //--check_bash_errors_token_end──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
 
 

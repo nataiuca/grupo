@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   built_args.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: natferna <natferna@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 11:14:57 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/19 10:34:12 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/06/27 01:57:09 by natferna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,15 @@ char	**split_args(t_tokens *tokens, t_program *program)
 	char		**args;
 	int			count;
 
+	
+    // Añade esto al inicio:
+    fprintf(stderr, "DEBUG (split_args): Building args for command:\n");
+    t_tokens *tmp = tokens;
+    while (tmp)
+    {
+        fprintf(stderr, "  Token type=%d, content=\"%s\"\n", tmp->type, tmp->content);
+        tmp = tmp->next;
+    }
 	cmd_token = skip_redir(tokens);			
 	if (!cmd_token || cmd_token->type != command)
 	{
@@ -84,6 +93,9 @@ char	**split_args(t_tokens *tokens, t_program *program)
 		ft_error(program, MSG_ERR_MALLOC, NULL, 1);
 		return (NULL);
 	}
+	fprintf(stderr, "DEBUG (split_args): Final args array:\n");
+    for (int i = 0; args && args[i]; i++)
+        fprintf(stderr, "  [%d]: \"%s\"\n", i, args[i]);
 	return (args);
 }
 

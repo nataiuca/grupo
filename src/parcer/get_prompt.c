@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_prompt.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: natferna <natferna@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 10:01:52 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/23 20:33:07 by natferna         ###   ########.fr       */
+/*   Updated: 2025/06/07 15:47:40 by mzolotar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,9 +117,6 @@ void	getcwd_error(t_program *program)
  */
 char	*get_prompt(t_program *program)
 {
-	if (!program->is_interactive)  // 🛑 Evitar prompt si no interactivo
-		return (NULL);
-		
 	char	temp_cwd[CWD_SIZE];
 	char	shell_name[PROMPT_SIZE];
 	char	colored_userhost[PROMPT_SIZE];

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   executor.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: natferna <natferna@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 08:49:48 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/21 11:46:52 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/06/27 02:17:25 by natferna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,12 +17,13 @@
 
 # include "datatypes.h"
 
-//#➵⤐──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌──Prototypes:──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+//#➵⤐╌╌➣⋆➣╌─⤏➵•➵⤐╌╌➣⋆➣╌╌─Here_doc──➣⋆➣╌⤏➵•➵⤐╌╌➣⋆➣╌╌➔#
+
 //--here_doc──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
 // src/executor/here_doc.c (/5): // ✅_NORMA  + ⚠️_testeo + ✅_DESCRIPCIONES + ✅_se usa
 int					open_here_doc_file(t_program *program, t_here *here, int i);
 //static bool		is_delimiter(char *line, char *delimiter);
-int					process_here_doc_lines(t_all *all, t_program *program, t_tokens *temp, int i);
+int process_here_doc_lines(t_all *all, t_program *program, t_tokens *temp, int i);
 void				here_doc(t_all *all, t_program *program, t_here *here);
 void				check_here_doc(t_all *all, t_program *program, t_here *here);
 
@@ -35,7 +36,8 @@ void				free_here_doc_names(t_here *here, int count);
 //--here_doc end──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
 
 
-//------------------ EJECUCIÓN -------------------//
+
+//#➵⤐╌╌➣⋆➣╌─⤏➵•➵⤐╌╌➣⋆➣╌╌─Execution──➣⋆➣╌⤏➵•➵⤐╌╌➣⋆➣╌╌➔#
 // src/executor/built_args.c (5/5)    ⚠️_NORMA  + ⚠️_DESCRIPCIONES + ⚠️_testeo  + ⚠️_testeo_free + ✅_se usa
 int					args_split_len(t_tokens *curr);
 bool				extract_args(t_tokens *curr, char **args);
@@ -107,9 +109,9 @@ int					fork_command_loop(t_program *program, t_all *all);
 int					executor_loop(t_all *all, t_program *program);
 
 // src/executor/executor_single_cmd.c (/5)		⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
-int check_child(t_program *program, t_all *all);
-void fork_and_run_single_cmd(t_all *all, t_program *program, t_tokens *curr);
-void run_single_command(t_all *all, t_program *program);
+int					check_child(t_program *program, t_all *all);
+void				fork_and_run_single_cmd(t_all *all, t_program *program, t_tokens *curr);
+void				run_single_command(t_all *all, t_program *program);
 
 // src/executor/executor.c (/5)		⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
 bool				must_use_env_builtin(char *cmd);
@@ -134,7 +136,7 @@ bool				init_exec_vals(t_program *program, t_all *all);
 
 
 
-//👽👽-----V2:BUILTINGS-----👽👽//
+//#➵⤐╌╌➣⋆➣╌─⤏➵•➵⤐╌╌➣⋆➣╌╌─Builtins──➣⋆➣╌⤏➵•➵⤐╌╌➣⋆➣╌╌➔#
 
 //builtins/builtings.c		⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
 bool				check_builtin(char *cmd);
@@ -170,7 +172,6 @@ int					ft_pwd(t_all *all, t_program *program, char **args);
 //static int		check_env_error(t_program *program, char **args);
 int					ft_env(t_program *program, t_all *all, char **args);
 
-
 // src/builtins/export_utils_2.c (8/5)		⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
 int					init_env_key(t_env *node, char *key);
 int					init_env_value_flags(t_env *node, char *value);
@@ -191,7 +192,6 @@ int					contains_equal(char *arg);
 void				update_or_add_env(t_program *program, char *key, char *value, int has_equal);
 void				parse_and_export_var(t_program *program, char *arg);
 int					ft_export(t_all *all, char **args, t_program *program);
-
 
 // src/builtins/unset.c (/5)		⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
 int					check_key(char *str);										//unset y export

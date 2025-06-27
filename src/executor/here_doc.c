@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   here_doc.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: natferna <natferna@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/25 13:07:50 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/23 09:11:49 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/06/27 02:16:44 by natferna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,16 +20,16 @@
  * @param i Index of the here-doc to open.
  * @return 0 on success, -1 on failure.
  */
-int	open_here_doc_file(t_program *program, t_here *here, int i)
+int open_here_doc_file(t_program *program, t_here *here, int i)
 {
-	here->fd_array[i] = open(here->here_name_docs[i],
-			O_RDWR | O_CREAT | O_TRUNC, 0666);
-	if (here->fd_array[i] < 0)
-	{
-		ft_error(program, "Error opening here-doc file", NULL, 1);
-		return (-1);
-	}
-	return (0);
+    here->fd_array[i] = open(here->here_name_docs[i], O_RDWR | O_CREAT | O_TRUNC, 0666);
+    if (here->fd_array[i] < 0)
+    {
+        perror("minishell: open here-doc file failed"); // Uso de perror
+        ft_error(program, "Error opening here-doc file", NULL, 1);
+        return (-1);
+    }
+    return (0);
 }
 
 /**
@@ -86,57 +86,75 @@ int	process_here_doc_lines(t_all *all, t_program *program, t_tokens *temp, int i
 	return (0);
 }
 	*/
-int	process_here_doc_lines(t_all *all, t_program *program, t_tokens *temp, int i)
+int process_here_doc_lines(t_all *all, t_program *program, t_tokens *temp, int i)
 {
-	char		*here_line;
-	t_tokens	*temp_line;
-	bool		delimiter_reached = false;
-	int			lineno = 1; // empieza en 1 si quieres simular línea 1 de heredoc
+    char        *here_line;
+    t_tokens    *temp_line;
+    bool        delimiter_reached = false;
+    int         lineno = 1; // empieza en 1 si quieres simular línea 1 de heredoc
 
-	temp_line = temp;
-	signal(SIGINT, handler_herequote);
-	here_line = herequote_hook_rl(program);
+    fprintf(stderr, "DEBUG (process_here_doc_lines): Starting here-doc processing.\n");
+    fprintf(stderr, "  Here-doc delimiter: \"%s\"\n", temp->next->content); // Asegúrate de acceder al contenido correcto
+    temp_line = temp;
+    signal(SIGINT, handler_herequote);
+    
+    here_line = herequote_hook_rl(program);
+    fprintf(stderr, "DEBUG (process_here_doc_lines): Initial here_line: \"%s\"\n", here_line ? here_line : "NULL");
 
-	while (here_line)
-	{
-		if (herequote_check_g_atomic(program, here_line))
-			break ;
+    while (here_line)
+    {
+        fprintf(stderr, "DEBUG (process_here_doc_lines): Read line %d: \"%s\"\n", lineno, here_line);
 
-		if (is_delimiter(here_line, temp->next->content))
-		{
-			delimiter_reached = true;
-			free(here_line);
-			break ;
-		}
+        if (herequote_check_g_atomic(program, here_line))
+        {
+            fprintf(stderr, "DEBUG (process_here_doc_lines): Atomic check triggered, breaking loop.\n");
+            break;
+        }
 
-		all->here->expanded_line_here = ft_strdup(here_line);
-		if (!all->here->expanded_line_here)
-			return (free(here_line), -1);
+        if (is_delimiter(here_line, temp->next->content))
+        {
+            delimiter_reached = true;
+            fprintf(stderr, "DEBUG (process_here_doc_lines): Delimiter reached: \"%s\"\n", temp->next->content);
+            free(here_line);
+            break;
+        }
 
-		if (temp_line->next->expand_here == true)
-			check_and_expand_var(all->tokens, &all->here->expanded_line_here, all->meta, program);
+        all->here->expanded_line_here = ft_strdup(here_line);
+        if (!all->here->expanded_line_here)
+        {
+            fprintf(stderr, "DEBUG (process_here_doc_lines): Memory allocation failed for expanded_line_here.\n");
+            free(here_line);
+            return -1;
+        }
 
-		write_and_free_here_line(all->here->expanded_line_here, all->here->fd_array[i]);
+        if (temp_line->next->expand_here == true)
+        {
+            fprintf(stderr, "DEBUG (process_here_doc_lines): Expanding variable in line: \"%s\"\n", all->here->expanded_line_here);
+            check_and_expand_var(all->tokens, &all->here->expanded_line_here, all->meta, program);
+        }
 
-		free(here_line);
-		here_line = herequote_hook_rl(program);
-		lineno++; // cuenta líneas para imprimir luego
-	}
+        write_and_free_here_line(all->here->expanded_line_here, all->here->fd_array[i]);
+        fprintf(stderr, "DEBUG (process_here_doc_lines): Written line to fd_array[%d]: \"%s\"\n", i, all->here->expanded_line_here);
 
-	// Si salimos por EOF sin haber alcanzado el delimitador
-	if (!delimiter_reached && !g_atomic)
-	{
-		ft_putstr_fd("minishell: warning: here-document at line ", STDERR_FILENO);
-		ft_putnbr_fd(lineno, STDERR_FILENO);
-		ft_putstr_fd(" delimited by end-of-file (wanted `", STDERR_FILENO);
-		ft_putstr_fd(temp->next->content, STDERR_FILENO);
-		ft_putstr_fd("')\n", STDERR_FILENO);
-	}
+        free(here_line);
+        here_line = herequote_hook_rl(program);
+        fprintf(stderr, "DEBUG (process_here_doc_lines): Next here_line: \"%s\"\n", here_line ? here_line : "NULL");
+        lineno++; // cuenta líneas para imprimir luego
+    }
 
-	return (0);
+    // Si salimos por EOF sin haber alcanzado el delimitador
+    if (!delimiter_reached && !g_atomic)
+    {
+        fprintf(stderr, "DEBUG (process_here_doc_lines): Warning: EOF reached without delimiter.\n");
+        ft_putstr_fd("minishell: warning: here-document at line ", STDERR_FILENO);
+        ft_putnbr_fd(lineno, STDERR_FILENO);
+        ft_putstr_fd(" delimited by end-of-file (wanted `", STDERR_FILENO);
+        ft_putstr_fd(temp->next->content, STDERR_FILENO);
+        ft_putstr_fd("')\n", STDERR_FILENO);
+    }
+
+    return 0;
 }
-
-
 
 /**
  * @brief Main loop to handle all here-doc entries in the token list.

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   executor_utils.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: natferna <natferna@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 11:12:06 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/19 10:33:19 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/06/26 21:50:56 by natferna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,14 +88,18 @@ int	count_type_tokens(t_tokens *tokens, t_type type_to_find)
 
 bool init_exec_vals(t_program *program, t_all *all)
 {
-	all->here->base_cwd = ft_strdup(program->prompt_cwd);
-	if (!all->here->base_cwd)
-	{
-		ft_error(program, MSG_ERR_MALLOC, NULL, 1);
-		return (false);
-	}
-		
-	all->exec->num_pipes= count_type_tokens(all->tokens, pipe_type);
-	all->exec->num_cmds = count_type_tokens(all->tokens, command);
-	return (true);
+    // ELIMINAR ESTA LÍNEA:
+    // all->here->base_cwd = ft_strdup(program->prompt_cwd);
+
+    // Asegurarse de que all->here->base_cwd ya esté inicializado
+    // (ahora se hace en init_here_struct)
+    if (!all->here->base_cwd) // Esto debería ser una comprobación de seguridad, no el punto de asignación
+    {
+        ft_error(program, "Internal error: base_cwd not initialized in init_here_struct", NULL, 1);
+        return (false);
+    }
+
+    all->exec->num_pipes = count_type_tokens(all->tokens, pipe_type);
+    all->exec->num_cmds = count_type_tokens(all->tokens, command);
+    return (true);
 }

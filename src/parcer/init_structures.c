@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init_structures.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: natferna <natferna@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 10:33:56 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/19 09:57:47 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/06/26 21:50:28 by natferna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,12 @@ t_metachars	*init_meta_struct(t_program *program)
 		return (NULL);
 	}
 	meta->program_acces = program;
+
+	meta->cmd_seen = false;
+	meta->pipe_seen = false;
+	meta->expecting_cmd = false;
+	meta->redir_pending = true;
+	
 	if (!init_meta_splits(meta, program))
 		return (NULL);
 	reset_meta_flags(meta, 3);
@@ -111,28 +117,43 @@ t_metachars	*init_meta_struct(t_program *program)
  * @return A pointer to the newly initialized `t_here` structure on success,
  * or NULL if memory allocation fails.
  */
-t_here	*init_here_struct(t_program *program)
+t_here *init_here_struct(t_program *program)
 {
-	t_here	*here;
+    t_here *here;
 
-	here = malloc(sizeof(t_here));
-	if (!here)
-	{
-		//return (error_and_return(program, ERR_MALLOC, NULL, 1), NULL);
-		ft_error(program, MSG_ERR_MALLOC, NULL, 1);
-		return (NULL);
-	}
-	here->here_doc_num = 0;
-	here->expanded_line_here = NULL;
-	here->base_cwd = NULL;
-	if (!alloc_here_doc_names(here, program))
-	{
-		free_here_doc_names(here, HERE_DOCS_MAX);
-		//error_and_return(program, ERR_MALLOC, NULL, 1);
-		ft_error(program, MSG_ERR_MALLOC, NULL, 1);
-		return (NULL);
-	}
-	return (here);
+    here = malloc(sizeof(t_here));
+    if (!here)
+    {
+        ft_error(program, MSG_ERR_MALLOC, NULL, 1);
+        return (NULL);
+    }
+    here->here_doc_num = 0;
+    here->expanded_line_here = NULL;
+
+    // MOVER LA ASIGNACIÓN DE base_cwd AQUÍ
+    here->base_cwd = ft_strdup(program->prompt_cwd); // <-- MOVIDO AQUÍ
+    if (!here->base_cwd) // Comprobar si ft_strdup falló
+    {
+        ft_error(program, MSG_ERR_MALLOC, NULL, 1);
+        free(here); // Liberar la estructura here si la asignación de base_cwd falla
+        return (NULL);
+    }
+
+    // alloc_here_doc_names ahora solo inicializa los punteros a NULL.
+    // Siempre devolverá true.
+    if (!alloc_here_doc_names(here, program))
+    {
+        // Este bloque de código ya no se ejecutará si alloc_here_doc_names
+        // solo inicializa a NULL y no hace mallocs que puedan fallar.
+        // Sin embargo, si en el futuro alloc_here_doc_names vuelve a hacer mallocs,
+        // este bloque sería relevante de nuevo.
+        free_here_doc_names(here, HERE_DOCS_MAX);
+        ft_error(program, MSG_ERR_MALLOC, NULL, 1);
+        free(here->base_cwd); // Liberar base_cwd si se asignó
+        free(here);
+        return (NULL);
+    }
+    return (here);
 }
 
 /**

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: natferna <natferna@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 08:44:49 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/24 02:22:34 by natferna         ###   ########.fr       */
+/*   Updated: 2025/06/26 10:47:06 by mzolotar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,15 +61,17 @@ extern volatile sig_atomic_t	g_atomic;
 // int main (int argc, char *argv[], char **envp);
 
 
-// src/utils/signals.c (/5)  ⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES
-void parent_sigint_handler(int signo);
-void child_signal_handler(int signo);
-void handler_herequote(int signum);
-void setup_signals(int parent);
-bool	catch_interactive(t_program *program, t_all *all, char *input);
-
+//#➵⤐╌╌➣⋆➣╌─⤏➵•➵⤐╌╌➣⋆➣╌╌─Signals ──➣⋆➣╌⤏➵•➵⤐╌╌➣⋆➣╌╌➔#
 
 // src/utils/signals.c (/5)  ⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES
+void				handler(int signum);
+void				signal_handling(void);
+void				handler_child(int signum);				//child handler
+void				handler_herequote(int signum);		 //here handler
+void				handler_builtins(int signum);
+bool				catch_interactive(t_program *program, t_all *all, char *input);
+
+// src/utils/herequote_utils.c (/5)  ⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES
 char				*herequote_hook_rl(t_program *program);
 int					herequote_check_g_atomic(t_program *program, char *here_line);
 int					event_hook(void);
@@ -92,12 +94,3 @@ void				print_all_test_3(char *line, t_tokens *tokens, int fd);
 
 #endif
 
-//#➵⤐╌╌➣⋆➣╌─⤏➵•➵⤐╌╌➣⋆➣╌╌─Core Functions──➣⋆➣╌⤏➵•➵⤐╌╌➣⋆➣╌╌➔#
-//#➵⤐╌╌➣⋆➣╌─⤏➵•➵⤐╌╌➣⋆➣╌╌─Prompt──➣⋆➣╌⤏➵•➵⤐╌╌➣⋆➣╌╌➔#
-//#➵⤐╌╌➣⋆➣╌─⤏➵•➵⤐╌╌➣⋆➣╌╌─Parsing──➣⋆➣╌⤏➵•➵⤐╌╌➣⋆➣╌╌➔#
-//#➵⤐╌╌➣⋆➣╌─⤏➵•➵⤐╌╌➣⋆➣╌╌─Signals ──➣⋆➣╌⤏➵•➵⤐╌╌➣⋆➣╌╌➔#
-//#➵⤐╌╌➣⋆➣╌─⤏➵•➵⤐╌╌➣⋆➣╌╌─Environment──➣⋆➣╌⤏➵•➵⤐╌╌➣⋆➣╌╌➔#
-//#➵⤐╌╌➣⋆➣╌─⤏➵•➵⤐╌╌➣⋆➣╌╌─Execution──➣⋆➣╌⤏➵•➵⤐╌╌➣⋆➣╌╌➔#
-//#➵⤐╌╌➣⋆➣╌─⤏➵•➵⤐╌╌➣⋆➣╌╌─Builtins──➣⋆➣╌⤏➵•➵⤐╌╌➣⋆➣╌╌➔#
-//#➵⤐╌╌➣⋆➣╌─⤏➵•➵⤐╌╌➣⋆➣╌╌─Utilities──➣⋆➣╌⤏➵•➵⤐╌╌➣⋆➣╌╌➔#
-//#➵⤐╌╌➣⋆➣╌─⤏➵•➵⤐╌╌➣⋆➣╌╌─...──➣⋆➣╌⤏➵•➵⤐╌╌➣⋆➣╌╌➔#

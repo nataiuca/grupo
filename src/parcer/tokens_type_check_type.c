@@ -6,79 +6,78 @@
 /*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 08:13:35 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/05/26 14:02:53 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/06/26 12:43:31 by mzolotar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-/**
- * @brief Attempts to classify the current token as a redirection if valid.
- *
- * @param current Pointer to the current token node.
- * @param head Pointer to the head of the token list.
- * @return true if the token was classified as a redirection, false otherwise.
- */
-bool	try_set_as_redirection(t_tokens *current, t_tokens *head)
+
+bool	try_set_as_redirection(t_tokens *current, t_tokens *head, t_metachars *meta)
 {
+	(void)head;
 	if (check_redir(current) != temp && is_redir(current))
 	{
-		assign_redirection_type(current, head);
+		current->type = check_redir(current);
+		meta->redir_pending = true;
+		//meta->expecting_cmd = !meta->cmd_seen;
+		if (meta->cmd_seen)
+			meta->expecting_cmd = false;
+		else
+			meta->expecting_cmd = true;
 		return (true);
 	}
 	return (false);
 }
 
-/**
- * @brief Tries to classify a token as an argument if unused and in context.
- *
- * @param current Pointer to the current token node.
- * @param head Pointer to the head of the token list.
- * @return true if the token was marked as an argument, false otherwise.
- */
-bool	try_set_as_argument_if_unused(t_tokens *current, t_tokens *head)
+bool	try_set_as_redir_follower(t_tokens *current, t_tokens *head, t_metachars *meta)
 {
-	if (any_command_before(current, head) && current->type == temp
-		&& !check_pipe(current) && !is_redir(current))
-	{
-		current->type = argument;
-		return (true);
-	}
-	return (false);
+	t_tokens *prev;
+
+	if (!current || !head)
+		return (false);
+	prev = ft_find_node_n_position(head, current->position - 1);
+	if (!prev || !is_redir(prev))
+		return (false);
+	if (check_pipe(current) || is_redir(current))
+		return (false);
+	if (prev->type == redir_l_d)
+		current->type = heredoc_delimiter;
+	else if (prev->type == redir_l_u || prev->type == redir_r_u || prev->type == redir_r_d)
+		current->type = path_name;
+	else
+		return (false);
+	meta->redir_pending = false;
+	meta->expecting_cmd = !meta->cmd_seen;
+	return (true);
 }
 
-/**
- * @brief Determines and assigns a proper type to a temporary token.
- *
- * @param current Pointer to the current token to classify.
- * @param head Pointer to the head of the token list.
- * @return true if the token type was successfully assigned, false otherwise.
- */
-bool	assign_token_type(t_tokens *current, t_tokens *head)
+
+bool	assign_token_type(t_tokens *current, t_tokens *head, t_metachars *meta)
 {
 	t_tokens	*next_token;
 
 	next_token = ft_find_node_n_position(head, current->position + 1);
-	if (try_set_as_command(current, head))
+
+	if (try_set_as_pipe(current, next_token, meta))
 		return (true);
-	if (try_set_as_argument(current, head))
+	if (try_set_as_redirection(current, head, meta))
 		return (true);
-	if (try_set_as_redirection(current, head))
+	if (try_set_as_redir_follower(current, head, meta))
 		return (true);
-	if (try_set_as_pipe(current, next_token))
+		
+	if (try_set_as_command(current, head, meta))
 		return (true);
-	if (try_set_as_argument_if_unused(current, head))
+		
+	//fprintf(stderr, "current->content en assign_token_type: %s, cmd_seen: %d, expecting_cmd: %d \n ", current->content, meta->cmd_seen, meta->expecting_cmd);
+	
+	if (try_set_as_argument(current, head, meta))
 		return (true);
+		
 	return (false);
 }
 
-/**
- * @brief Iterates through token list and assigns types to temp tokens.
- *
- * @param tokens Pointer to the token list.
- * @param has_temp_tokens Pointer to flag indicating if temp tokens remain.
- */
-void	process_tokens(t_tokens *tokens, bool *has_temp_tokens)
+void	process_tokens(t_tokens *tokens, bool *has_temp_tokens, t_metachars *meta)
 {
 	t_tokens	*current;
 
@@ -87,7 +86,8 @@ void	process_tokens(t_tokens *tokens, bool *has_temp_tokens)
 	{
 		if (current->type == temp)
 		{
-			if (assign_token_type(current, tokens))
+			//fprintf(stderr, "current->position  en assign_token_type: %d \n ", current->position);
+			if (assign_token_type(current, tokens, meta))
 				*has_temp_tokens = true;
 		}
 		current = current->next;
@@ -105,22 +105,48 @@ void	process_tokens(t_tokens *tokens, bool *has_temp_tokens)
 		current = current->next;
 	}
 }
+//❌DEBUG, QUITAR
+void debug_test(t_tokens *tokens)
+{
+	t_tokens *current = tokens;
+	bool error_found = false;
 
-/**
- * @brief Main loop to process token list and classify all temporary tokens.
- *
- * @param tokens Pointer to the token list to be processed.
- */
-void	check_type_tokens(t_tokens *tokens)
+	while (current)
+	{
+		if (current->type == temp)
+		{
+			fprintf(stderr, "\033[1;31m[ERROR] Token con tipo 'temp' sin asignar: posición %d, contenido: '%s'\033[0m\n",
+        	current->position, current->content);
+			error_found = true;
+		}
+		current = current->next;
+	}
+
+	if (!error_found)
+		return;
+	//	fprintf(stderr, "[DEBUG] Todos los tokens tienen tipo asignado correctamente.\n");
+}
+
+
+
+void	check_type_tokens(t_tokens *tokens, t_metachars *meta)
 {
 	bool	has_temp_tokens;
 
 	if (!tokens)
 		return ;
 	has_temp_tokens = true;
+
+	meta->cmd_seen = false;
+	meta->pipe_seen = false;
+	meta->expecting_cmd = false;
+	meta->redir_pending = true;
+	
 	while (has_temp_tokens)
 	{
 		has_temp_tokens = false;
-		process_tokens(tokens, &has_temp_tokens);
+		process_tokens(tokens, &has_temp_tokens, meta);
 	}
+	
+	debug_test(tokens); //❌DEBUG, QUITAR
 }

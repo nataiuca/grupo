@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   free_structs.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: natferna <natferna@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 14:49:10 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/19 10:25:54 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/06/27 02:04:51 by natferna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,25 +38,34 @@ void free_meta_struct(t_metachars *meta)
  * @param here Pointer to the here-doc structure to free.
  * @return void
  */
-void free_here(t_here *here)
+void free_here(t_here **ph)
 {
-    int i;
-    
-    if (!here)
+    t_here  *here;
+    int     i;
+
+    if (!ph || !*ph)
         return;
-    i=0;
-    while ( i < HERE_DOCS_MAX)
+    here = *ph;
+    i = 0;
+    while (i < HERE_DOCS_MAX)
     {
         if (here->fd_array[i] != -1)
+        {
             close(here->fd_array[i]);
+            here->fd_array[i] = -1;
+        }
         if (here->here_name_docs[i])
         {
-            //fprintf(stderr, "⚠️DEBUG borando file here_name: %s\n", here->here_name_docs[i]);
-            unlink(here->here_name_docs[i]); 
+            unlink(here->here_name_docs[i]);
             free(here->here_name_docs[i]);
             here->here_name_docs[i] = NULL;
         }
         i++;
+    }
+    if (here->expanded_line_here)
+    {
+        free(here->expanded_line_here);
+        here->expanded_line_here = NULL;
     }
     if (here->base_cwd)
     {
@@ -64,6 +73,7 @@ void free_here(t_here *here)
         here->base_cwd = NULL;
     }
     free(here);
+    *ph = NULL;
 }
 
 void free_program(t_program *program)
@@ -95,10 +105,10 @@ void free_program(t_program *program)
 
 void	free_all_structs(t_all *all)
 {
-	if (all->line)
-    {
-		free(all->line);
-	    all->line = NULL; 		//para evitar punteros colgando:
+	{
+        fprintf(stderr, "DEBUG (free_all_structs): Freeing all.line: %s\n", all->line);
+        free(all->line);
+        all->line = NULL; // Asegúrate de ponerlo a NULL después de liberar
     }
 	if (all->exec)
     {
@@ -112,7 +122,7 @@ void	free_all_structs(t_all *all)
     }
 	if (all->here)
     {
-		free_here(all->here);
+		free_here(&all->here);
 	    all->here = NULL;
     }
 	if (all->tokens_head)
@@ -132,4 +142,5 @@ void	free_all_structs(t_all *all)
 		free_split_strs(all->token);
 	    all->token = NULL;
     }
+	all->line = NULL;
 }

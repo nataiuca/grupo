@@ -161,9 +161,14 @@ void free_and_exit_child(t_all *all, t_program *program, int exit_status)
 void	execute_command(t_all *all, t_program *program, t_tokens *curr)
 {
 	//fprintf(stderr,"\033[0;34m ⚠️DEBUG: ha entrado en exec_cmd en hijo \n  \033[0m\n");
-	char	*cmd_path;
+	char	*cmd_path = NULL;
 	int		status;
 
+	fprintf(stderr, "DEBUG (execute_command): Executing command:\n");
+    fprintf(stderr, "  Path: %s\n", cmd_path);
+    fprintf(stderr, "  Args:\n");
+    for (int i = 0; all->exec->args && all->exec->args[i]; i++)
+        fprintf(stderr, "    [%d]: \"%s\"\n", i, all->exec->args[i]);
 	if (!curr || !curr->content || !update_args(all->exec, curr, program))
 		exit(1);
 	update_envp_copy(program);
