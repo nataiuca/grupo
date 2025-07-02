@@ -103,7 +103,7 @@ SRCS 					:= \
 						parcer/get_prompt.c \
 						parcer/handle_error.c \
 						parcer/minishell_loop.c \
-						\
+						parcer/minishell_loop_utils.c\
 						\
 						utils/signals.c \
 						utils/herequote_utils.c \
