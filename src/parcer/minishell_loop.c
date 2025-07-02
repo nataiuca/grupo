@@ -5,8 +5,8 @@ void minishell_loop( t_program *program)
 	t_all all;
 
 	signal(SIGQUIT, SIG_IGN);
-	//all.line = readline(get_prompt(program));
-	all.line = get_line_prompt(program); 
+	all.line = readline(get_prompt(program));
+	//all.line = get_line_prompt(program); 
 	if (catch_ctrl_d(program, &all, all.line )) //Ctrl+D 
 	{
 		free(all.line);
@@ -28,8 +28,8 @@ void minishell_loop( t_program *program)
 		if (ft_str_is_empty_or_spaces(all.line))				//saltar si línea está vacía o sólo espacios
 		{
 			free(all.line);
-			all.line = get_line_prompt(program); 
-			//all.line = readline(get_prompt(program));
+			//all.line = get_line_prompt(program); 
+			all.line = readline(get_prompt(program));
 			if (catch_ctrl_d(program, &all, all.line))
 			{
 				free(all.line);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   tokenizer.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: natferna <natferna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/18 09:06:51 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/07/01 11:01:22 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/07/02 12:13:22 by natferna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ bool tokenizer(t_all *all, t_program *program)
 void handle_reset(t_all *all,  t_program *program)
 {
 	free_all_structs(all, 0);
-	//all->line = readline(get_prompt(program));
-	all->line = get_line_prompt(program); 
+	all->line = readline(get_prompt(program));
+	//all->line = get_line_prompt(program); 
 }
 

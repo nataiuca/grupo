@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   herequote_utils.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: natferna <natferna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/26 10:42:34 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/07/01 13:28:51 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/07/02 12:13:19 by natferna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,10 @@ char	*herequote_hook_rl(t_program *program)
 	rl_event_hook = event_hook;
 	signal(SIGINT, handler_herequote);
 
-	//(void)program;
+	(void)program;
 	
-	//line = readline("> "); //volver a poner
-	line = get_line_str("> ", program); //DEBUG
+	line = readline("> "); //volver a poner
+	//line = get_line_str("> ", program); //DEBUG
 	
 	rl_event_hook = NULL;
 	return (line);
