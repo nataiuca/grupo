@@ -2,26 +2,26 @@
 ❓ -> diferente bash y mini -> no se gestionan los mismos operadores. 
 ✅ -> igual bash y mini- > ok
 
-
 //#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆
-✅ <ENTER> → No hay tokens, así que no hay comando. Bash simplemente muestra un nuevo prompt sin ejecutar nada. 
-✅ check_empty_line ->  <espacio><espacio><ENTER> → si linea esta vacia o solo espacio o solo enter -> espera comando nuevo y no ejecuta nada
-✅ ''
-✅ ""
-✅ _PTE_TESTEO:  ✒ ver esto con historial, espacios si van al historial
-✅ historial -> actualizacion del  historial al reinicir la linea
-✅ _PTE_TESTEO:  ✒  ""  y '' como -> Command '' not found
-✅ _PTE_TESTEO: '/' + '\t' + '\n'
-✅_PTE_TESTEO:'/' anula caracter que sigue al \ -> ver subject. man bash p 6.
-✅ ./minishell ./minishell 
-✅ $? + $?
+⚠️ <ENTER> → No hay tokens, así que no hay comando. Bash simplemente muestra un nuevo prompt sin ejecutar nada. 
+⚠️ check_empty_line ->  <espacio><espacio><ENTER> → si linea esta vacia o solo espacio o solo enter -> espera comando nuevo y no ejecuta nada
+⚠️ ''
+⚠️ ""
+⚠️ _PTE_TESTEO:  ✒ ver esto con historial, espacios si van al historial
+⚠️ historial -> actualizacion del  historial al reinicir la linea
+⚠️ _PTE_TESTEO:  ✒  ""  y '' como -> Command '' not found
+⚠️ _PTE_TESTEO: '/' + '\t' + '\n'
+⚠️_PTE_TESTEO:'/' anula caracter que sigue al \ -> ver subject. man bash p 6.
+⚠️ ./minishell ./minishell 
+⚠️ $? + $?
 
 //#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── 💥builtin - pipe- builtin💥.──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
-
 💥builtin - pipe- execve💥
 
-✅ < file grep hola | kakakak | lalala   
+✅ < file grep hola | kakakak > file -i | lalala   
 ✅ > file grep hola | kakakak | lalala  
+echo hola | < file grep hola
+< file grep hola
 ✅ : < file grep hola
 ✅ :
 ✅ echo "VAR=hola" | unset     # No tiene sentido, no debe funcionar
@@ -426,8 +426,11 @@ error
 
 //--------------------------------------------PIPES Y REDIRS--------------------------------------------
 ✅ ls -l > dev/test/testeando_mini/filelist.txt     
+✅ ls > dev/test/testeando_mini/filelist.txt -l 
 ✅ cat dev/test/testeando_mini/filelist.txt 
-✅ ls -l | > list
+
+
+
 ✅ ls -l | grep "sh" > list
 ✅ ls -l'|'> list    
 ✅ env | cat << ls | cd dev (sin sentido)
@@ -478,6 +481,7 @@ error
 ✅ cat < output.txt | wc -l
 ✅ cat file_noexist | grep "loco"  | sort | uniq > output.txt
 
+
 //#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆ tokenizacion y ejecucion reajuste asignacion type ⋆➣╌╌──  ─╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
 
 👾 [redir_l_u (<)]:
@@ -489,6 +493,7 @@ error
 ✅   comando < path_name 									        -> cat < file
 ✅   comando < path_name | comando 	arg					  -> cat < file | wc -l
 ✅   comando agr < path_name | comando arg				  -> grep "hello" < file | wc -l
+
 ✅ 			< path_name          						          -> < file
 ✅ 			< path_name  > path_name comando arg 		  -> < file > b.txt grep $USER
 ✅ 			< path_name  comando 						          -> < file wc
@@ -551,6 +556,7 @@ error
 ✅ export PATH="" 
 
 //#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌──  ─╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
 ✅ echo "hellofromfile4" >file1 >file2 > file3 >>file4 | cat <<ls << la < file4 
 ✅ echo "hellofromfile4">file1>file2 >file3 >>file4 '|' cat <<eof<<"end"<file4
 ✅ echo "hellofromfile4">file1>file2>file3>>file4| at <<eof << "end" <file4    
@@ -558,3 +564,242 @@ error
 ✅ echo "hellofromfile4">file1>file2>file3>>>>>file4|cat <<eof << "end" <file4 <<$USER
 ✅ rm file1 file2 file3 file4
 ✅ echo "hellofromfile4">file1>file2>file3>>file4|cat <<eof << "end" <file4 <<$USER
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌──  ─╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+fallo stdput y dup2 para builtins como child
+
+✅ echo hola | cat << ls 
+✅ env | > file
+✅ pwd | > file
+✅ echo hola | < file
+✅ echo hola | > file
+
+✅ cat << ll | cat << ls 
+✅ ls | cat << ls 
+✅ echo hola | grep l  | cat << ls 
+✅ ls | grep l | > file
+✅ echo hola | grep h
+✅ pwd | grep h
+✅ ls | grep l
+✅ cat << ls | sort > file
+✅ ls -l | > list
+✅ ls -l | > list wc -c
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── TOKENIZACION NUEVA ─╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+✅ command  < path_name arg 						    -> grep < file $USER   			
+✅ comando > path_name arg							  -> ls > file file		
+✅ comando >> path_name arg							  -> ls >> file file		
+✅ comando  << EOF arg     							-> grep << ls $USER
+✅ command arg | command arg < path_name arg 			-> cat file | wc -l < file test
+✅ command arg | comando arg > path_name arg				-> echo hola | grep h > file test
+✅ command arg | comando arg >> path_name arg			-> echo dos | grep d >> log.txt extra
+✅ command arg | comando  << EOF command arg     		-> echo hola | cat << EOFkkaka -l
+✅ echo hola | cat file -l 
+
+✅ echo hola | grep h > file test
+✅ echo hola | grep > file h
+✅ > file wc -l
+✅ echo > file hola 
+✅ echo hola > file >file2 >file3 mundo 
+✅ echo hola | < file wc -l 
+✅ echo hola | > file wc -l
+✅ echo hola | wc > file -l
+✅ echo hola | cat << ls 								❌ -> no leee bien heredoc
+✅ echo hola | cat << ls | > file > file2 ls -l 			❌ -> no leee bien heredoc
+✅ echo hola | << end | > file wc -l 						❌ -> no leee bien heredoc
+✅ echo hola | << end | > file > file2 wc -l				❌ -> no leee bien heredoc
+✅ ls -l | > list
+✅ ls -l | > list wc -c
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── test_here nuevo ─╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+echo hola | cat << end
+echo hola | << end
+echo hola | << end cat
+echo hola | << end cat > file
+
+cat << end | grep hola
+cat << end | sort
+cat << end | sort > sorted_here
+cat << end | grep -i hola | wc -l 
+cat << end | grep -i hola | wc -l  > sorted_here
+cat << end | cat | cat | cat
+cat << end | tee salida_1 salida_2 salida_3
+cat << end | greo $USER
+cat << end | grep /$HOME
+<< end << end2 << end3
+cat << end << end2 << end3
+echo hola | cat << end << end2 << end3 
+echo hola | cat << end << end2 << end3 | grep hola
+echo hola | cat << end << end2 << end3 | grep hola | wc -c
+echo hola | cat << end << end2 << end3 | grep hola | wc -c > output_here
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌──  ─╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+echo hola | tr a-z A-Z | cat -e | grep H | wc -c | cat | cat > out1.txt
+ls -l | grep '^d' | wc -l | cat | tr 0-9 X | tee out2.txt | wc -c
+cat < Makefile | grep all | cut -d : -f1 | tr a-z A-Z | sort | uniq | wc -l
+seq 1 10 | paste -s -d+ - | bc | tr 0-9 X | cat | tr X x | cat > out3.txt
+cat << EOF | tr a-z A-Z | rev | cat -e | tee /dev/null | wc -c | cat
+hello minishell
+EOF
+cat Makefile | head -n 10 | tail -n 5 | grep clean | wc -c | cat | cat > out4.txt
+seq 100 | grep 5 | sort -r | head -n 10 | cat | cat | wc -l
+echo one two three | tr ' ' '\n' | sort | tee out5.txt | uniq | cat | wc -l
+cat author | cat | cat | tr a-z A-Z | rev | rev | cat > out6.txt
+env | sort | grep PATH | tr : '\n' | grep bin | wc -l | cat | cat
+seq 1 5 | xargs -n1 echo | sort -r | tr '\n' '-' | cat | wc -c > out7.txt
+echo abc def ghi | tr ' ' '\n' | cat | grep d | cat | cat | wc -c
+ls | grep minishell | cat | tr a-z A-Z | sort | uniq | wc -l > out8.txt
+cat *.c | grep main | wc -l | cat | tee out9.txt | cat | cat
+seq 10 20 | grep -E '1.$' | tee >(cat) | cat | wc -l | cat > out10.txt
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌──  ─╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+cat << EOF | tr a-z A-Z | rev | cat -e | grep A | wc -l | cat
+hola mundo
+esto es un heredoc
+EOF
+
+cat << STOP | grep hello | wc -l | cat | cat | cat | cat
+hello minishell
+hello 42
+STOP
+
+cat << XX | cat | tr a-z A-Z | grep F | wc -c | cat | cat
+falla
+porque
+NO
+CIERRA
+
+cat << EOF | grep goodbye | tr a-z A-Z | sort | uniq | wc -l | cat
+goodbye minishell
+goodbye world
+EOF
+
+cat << EOF | tr a-z A-Z | tr ' ' '\n' | grep MINI | cat | wc -l | cat
+minishell es
+mini pero shell
+EOF
+
+cat << EOT | cat | cat | cat | tr A-Z a-z | grep shell | wc -l | cat
+Minishell
+is a Shell
+EOT
+
+cat << x | grep foo | tr a-z A-Z | cat | wc -l | cat | cat
+foo bar
+baz qux
+# falta el delimitador
+
+cat << END | cat | grep abc | wc -l | tr 0-9 X | cat | cat
+abc
+def
+ghi
+END
+
+cat << ZZZ | tr a-z A-Z | rev | cat -e | grep 'O' | wc -l | cat
+zzzzzz
+ooo
+oooo
+ZZZ
+
+cat << FOO | grep minishell | sort | tr a-z A-Z | cat | cat | wc -l
+minishell es genial
+minishell funciona
+FOO
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌──  ─╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+
+minishell: mzolotar@DESKTOP-VQPON4J:~/42_School_temp_rep/copia_mini_borrador$ << ls << lls << lls << llls
+> 
+minishell: warning: here-document at line 1 delimited by end-of-file (wanted `ls')
+> ^C
+minishell: mzolotar@DESKTOP-VQPON4J:~/42_School_temp_rep/copia_mini_borrador$ ^C^C^C^C^C^C^C
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌──  ─╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+revisar esta parte con : y |> 
+
+✅ echo hola | < file grep hola
+✅ echo hola | < file
+
+✅ > file 
+ ls -l | > list wc
+❓ ls -l | > list  -> no hay comando args[0] -> : y se desplaza el puntero a ultimo nodo y no pilla redireccion
+❓ ls -l | >> list	-> no hay comando args[0]-> : y se desplaza el puntero a ultimo nodo y no pilla redireccion
+❓ cat file | > list -> no hay comando args[0]-> : y se desplaza el puntero a ultimo nodo y no pilla redireccion
+❓ cat file | grep hola |  > list  -> no hay comando args[0]-> : y se desplaza el puntero a ultimo nodo y no pilla redireccion
+❓ > file | > list
+
+✅ > list | grep h | wc -l
+✅ cat file | > list | wc -l
+✅ echo hola | << ls
+
+✅ cat << ls -> no falla
+✅ cat << ls | grep h > file ->  no falla
+❌ echo hola | cat << ls -> falla 
+❌ echo hola | grep << ls h
+
+✅ > file ls  | wc
+✅ < file ls  | wc
+✅  > file pwd  | wc
+✅ ls -l | > list wc
+✅ ls -l | : > list
+✅ ls  | > list wc
+✅ ls | > file > file2 -l
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌──  ─╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+
+✅ ls > file > file2 > file3 -l
+nada redir delimitador/path_name COMMAND 
+✅ > file ls 
+
+
+
+✅ ls > file -l
+pipe redir delimitador/path_name COMMAND 
+✅ > file ls 
+✅ > file ls file
+✅ echo hola | > file wc 
+✅ echo hola | > file wc -l
+command arg redir delimitador/path_name ARG -> 
+✅ ls -l > file file
+✅ echo hola | ls -l > file file
+✅ echo hola | ls -l > file >file2 >file3 file
+command redir delimitador/path_name ARG 
+✅ ls > file -l
+✅ echo hola | wc > file -l
+✅ < path_name          						         -> < file
+✅ < path_name  comando 						        -> < file wc
+✅ < path_name  comando arg 					        -> < file grep $USER
+✅ > path_name comando arg								->  > file echo hola 
+✅ >> path_name comando arg							->  >> file echo hola 
+✅ << EOF comando arg | comando						-> << EOF cat | wc -l
+✅ << ls wc -l
+
+✅ command | < path_name          						-> echo hola | < file
+✅ command | < path_name  comando 						-> echo hola | < file wc
+✅ command | < path_name  comando arg 					 -> echo hola | < file wc -l
+
+❌ command | > path_name 								->❌ ls | > file  -> falla ejecucion o redirs
+														-> ❌ echo hola | > file
+
+ command | > path_name comando arg						-> echo hola | > salida.txt wc -l
+ command | >> path_name comando arg						-> echo hola | >> salida.txt wc -l
+ command |  << EOF comando arg | comando				-> echo hola | << EOF wc -l | cat
+ ❌ echo hola | << ls wc -l   -> falla here
+
+ command |  << EOF										-> echo hola |  << ls
+
+✅ ls | > file wc -l 
+✅ ls | < file wc -l
+✅ echo hola | > file wc -l            -> file tiene 1
+✅ ls << ls -l
+✅ echo hola | cat > file
+✅ echo hola > file | cat
+✅ > file                    # sin comando
+✅ echo hola |> wc -l                  -> -l: command not found
+✅ echo hola |> grep hola              -> hola: command not found

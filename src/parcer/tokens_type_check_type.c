@@ -6,12 +6,11 @@
 /*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 08:13:35 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/26 12:43:31 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/06/30 08:29:57 by mzolotar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
 
 bool	try_set_as_redirection(t_tokens *current, t_tokens *head, t_metachars *meta)
 {
@@ -52,28 +51,21 @@ bool	try_set_as_redir_follower(t_tokens *current, t_tokens *head, t_metachars *m
 	return (true);
 }
 
-
 bool	assign_token_type(t_tokens *current, t_tokens *head, t_metachars *meta)
 {
 	t_tokens	*next_token;
 
 	next_token = ft_find_node_n_position(head, current->position + 1);
-
 	if (try_set_as_pipe(current, next_token, meta))
 		return (true);
 	if (try_set_as_redirection(current, head, meta))
 		return (true);
 	if (try_set_as_redir_follower(current, head, meta))
 		return (true);
-		
 	if (try_set_as_command(current, head, meta))
 		return (true);
-		
-	//fprintf(stderr, "current->content en assign_token_type: %s, cmd_seen: %d, expecting_cmd: %d \n ", current->content, meta->cmd_seen, meta->expecting_cmd);
-	
 	if (try_set_as_argument(current, head, meta))
 		return (true);
-		
 	return (false);
 }
 
@@ -86,7 +78,6 @@ void	process_tokens(t_tokens *tokens, bool *has_temp_tokens, t_metachars *meta)
 	{
 		if (current->type == temp)
 		{
-			//fprintf(stderr, "current->position  en assign_token_type: %d \n ", current->position);
 			if (assign_token_type(current, tokens, meta))
 				*has_temp_tokens = true;
 		}
@@ -105,6 +96,7 @@ void	process_tokens(t_tokens *tokens, bool *has_temp_tokens, t_metachars *meta)
 		current = current->next;
 	}
 }
+
 //❌DEBUG, QUITAR
 void debug_test(t_tokens *tokens)
 {
@@ -115,16 +107,13 @@ void debug_test(t_tokens *tokens)
 	{
 		if (current->type == temp)
 		{
-			fprintf(stderr, "\033[1;31m[ERROR] Token con tipo 'temp' sin asignar: posición %d, contenido: '%s'\033[0m\n",
-        	current->position, current->content);
+			fprintf(stderr, "\033[1;31m[ERROR] Token con tipo 'temp' sin asignar: posición %d, contenido: '%s'\033[0m\n", current->position, current->content);
 			error_found = true;
 		}
 		current = current->next;
 	}
-
 	if (!error_found)
 		return;
-	//	fprintf(stderr, "[DEBUG] Todos los tokens tienen tipo asignado correctamente.\n");
 }
 
 
@@ -133,6 +122,8 @@ void	check_type_tokens(t_tokens *tokens, t_metachars *meta)
 {
 	bool	has_temp_tokens;
 
+	t_tokens *original = tokens; //❌DEBUG, QUITAR
+	
 	if (!tokens)
 		return ;
 	has_temp_tokens = true;
@@ -148,5 +139,9 @@ void	check_type_tokens(t_tokens *tokens, t_metachars *meta)
 		process_tokens(tokens, &has_temp_tokens, meta);
 	}
 	
-	debug_test(tokens); //❌DEBUG, QUITAR
+
+
+
+	
+	debug_test(original); //❌DEBUG, QUITAR
 }

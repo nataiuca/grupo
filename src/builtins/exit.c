@@ -6,13 +6,13 @@
 /*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 07:21:05 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/19 08:46:08 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/06/30 12:10:15 by mzolotar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "minishell.h"
 
-static int	is_valid_numeric_arg(char *arg)  //✅ 
+static int	is_valid_numeric_arg(char *arg)
 {
 	int	i;
 
@@ -35,7 +35,7 @@ static int	is_valid_numeric_arg(char *arg)  //✅
 	return (1);
 }
 
-static int	ft_aux_exit(t_exec *exec, t_program *program)  //✅ 
+static int	ft_aux_exit(t_exec *exec, t_program *program)
 {
 	if (exec->args[1])
 	{
@@ -54,22 +54,16 @@ static int	ft_aux_exit(t_exec *exec, t_program *program)  //✅
 	return (0); // sin argumentos
 }
 
-int	ft_exit(t_all *all, t_program *program) //✅ 
+int	ft_exit(t_all *all, t_program *program)
 {
 	int	exit_code;
 
 	if (all->exec->num_pipes == 0)
 		ft_putendl_fd("exit", STDERR_FILENO);
-
 	exit_code = ft_aux_exit(all->exec, program);
-
 	if (exit_code == -1)
 		return (program-> last_exit_status); // no salimos, ya imprimimos error con ft_error
-
-	//fprintf(stderr,"\033[0;34m ⚠️ DEBUG: liberando all en exit \n  \033[0m\n");
-	free_all_structs(all);		// ✅ salir: liberar todo
-	//fprintf(stderr,"\033[0;34m ⚠️ DEBUG: liberando program en exit \n  \033[0m\n");
+	free_all_structs(all, 0);		// ✅ salir: liberar todo
 	free_program(program);		// ✅ salir: liberar todo
-	//program->last_exit_status = 0; //NOT
 	exit(exit_code);			// ✅ terminar minishell
 }

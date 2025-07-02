@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   executor.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: natferna <natferna@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 08:49:48 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/27 02:17:25 by natferna         ###   ########.fr       */
+/*   Updated: 2025/07/01 13:31:24 by mzolotar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,14 +20,14 @@
 //#➵⤐╌╌➣⋆➣╌─⤏➵•➵⤐╌╌➣⋆➣╌╌─Here_doc──➣⋆➣╌⤏➵•➵⤐╌╌➣⋆➣╌╌➔#
 
 //--here_doc──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
-// src/executor/here_doc.c (/5): // ✅_NORMA  + ⚠️_testeo + ✅_DESCRIPCIONES + ✅_se usa
+// src/executor/here_doc.c (/5): // ⚠️_NORMA  + ⚠️_testeo + ✅_DESCRIPCIONES + ✅_se usa
 int					open_here_doc_file(t_program *program, t_here *here, int i);
 //static bool		is_delimiter(char *line, char *delimiter);
-int process_here_doc_lines(t_all *all, t_program *program, t_tokens *temp, int i);
-void				here_doc(t_all *all, t_program *program, t_here *here);
-void				check_here_doc(t_all *all, t_program *program, t_here *here);
+int					process_here_doc_lines(t_all *all, t_program *program, t_tokens *temp, int i);
+bool				here_doc(t_all *all, t_program *program, t_here *here, t_tokens *tokens);
+bool				check_here_doc(t_all *all, t_program *program, t_here *here);
 
-// src/executor/here_doc_utils.c (/5): // ✅_NORMA  + ⚠️_testeo + ✅_DESCRIPCIONES + ✅_se usa
+// src/executor/here_doc_utils.c (/5): // ⚠️_NORMA  + ⚠️_testeo + ✅_DESCRIPCIONES + ✅_se usa
 void				count_here_doc(t_tokens *tokens, t_here *here);
 void				generate_here_doc_name(t_program *program, t_here *here, int i, char *itoa_str);
 void				write_and_free_here_line(char *line, int fd);
@@ -38,107 +38,108 @@ void				free_here_doc_names(t_here *here, int count);
 
 
 //#➵⤐╌╌➣⋆➣╌─⤏➵•➵⤐╌╌➣⋆➣╌╌─Execution──➣⋆➣╌⤏➵•➵⤐╌╌➣⋆➣╌╌➔#
-// src/executor/built_args.c (5/5)    ⚠️_NORMA  + ⚠️_DESCRIPCIONES + ⚠️_testeo  + ⚠️_testeo_free + ✅_se usa
+// src/executor/built_args.c (5/5)    ✅_NORMA  + ⚠️_DESCRIPCIONES + ⚠️_testeo  + ✅_se usa
 int					args_split_len(t_tokens *curr);
 bool				extract_args(t_tokens *curr, char **args);
 char				**split_args(t_tokens *tokens, t_program *program);
 bool				update_args(t_exec *exec, t_tokens *tokens, t_program *program);
 
-// src/executor/env_utils.c (5/5)   ⚠️_NORMA  + ⚠️_DESCRIPCIONES + ⚠️_testeo 
+// src/executor/env_utils.c (5/5)   ✅_NORMA  + ⚠️_DESCRIPCIONES + ⚠️_testeo 
 char				**malloc_env_array(t_env *env, t_program *program);
 char				**build_envp_from_list(t_env *env, t_program *program);
 int					env_list_length(t_env *env);
 int					env_array_size(char **envp);
 void				update_envp_copy(t_program *program); //export, unset, execve, cd
 
-// src/executor/env_init.c (/5)   ⚠️_NORMA  + ⚠️_DESCRIPCIONES + ⚠️_testeo 
+// src/executor/env_init.c (/5)   ✅_NORMA  + ⚠️_DESCRIPCIONES + ⚠️_testeo 
 char				**clone_env_array(char **envp, t_program *program);
 t_env				*init_env_node(t_program *program);
 t_env				*parse_env_var_to_node(char *env_var, t_program *program);
 t_env				*envp_array_to_list(char **envp, t_program *program);
 
-
 // src/executor/pipes.c (/5)		⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
-void				close_all_pipe_fds_in_parent(t_exec *exec);
 int					init_pipe(t_program *program, t_exec *exec, int i);
 int					alloc_pipe_fd_array(t_program *program, t_exec *exec);
 int					alloc_pipe_pair_at_index(t_program *program, t_exec *exec, int i);
 bool				init_all_pipes(t_program *program, t_all *all);
-//--------------------- FREE PIPES ---------------------//
+
+// src/executor/pipes_free.c (/5)		⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
+void				close_all_pipe_fds_in_parent(t_exec *exec);
 void				free_all_pipes(t_exec *exec);
 void				free_pipes_up_to_index(t_exec *exec, int limit);
 void				close_all_pipes(t_exec *exec);
 void				close_unused_pipes_in_parent(t_exec *exec, int i);
 
 // src/executor/redirections.c (/5)		⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
+int					get_output_flags(int type);
 bool				config_fd_redir(int infile, int outfile, t_program *program);
+//static bool		redirect_input(t_exec *exec, int i, t_program *program);
+ bool		redirect_output(t_exec *exec, int i, t_program *program);
+bool				apply_cmd_redir(t_exec *exec, int i, t_program *program);
+
+// src/executor/redirections_2.c (/5)		⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
 int					handle_output(t_program *program, t_exec *exec, char *file, int flags);
 int					handle_input(t_program *program, t_exec *exec, char *file);
-int					get_output_flags(int type);
 int					process_output_redirection(t_program *program, t_exec *exec, t_tokens *curr);
 int					process_input_redirection(t_all *all, t_program *program, t_tokens *curr, int *heredoc_index);
 bool				apply_redir(t_all *all, t_program *program);
-//static bool		redirect_input(t_exec *exec, int i, t_program *program);
-//static bool		redirect_output(t_exec *exec, int i, t_program *program);
-bool				apply_cmd_redir(t_exec *exec, int i, t_program *program);
-
 
 // src/executor/get_path_execve.c (/5)		⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
-//---------------- HANDLE_ERRORS------------------//
-int					handle_access_errors(t_program *program, t_all *all, char *cmd);
-int					validate_executable(t_program *program, t_all *all, char *cmd_path);
-//------------------ GET PATH --------------------//
 char				*get_cmd_full_path(char *cmd);
 char				*check_path(char *path, char *cmd);
 char				**extract_path_dirs(char **envp);
 char				*find_cmd_in_paths(t_program *program, char *cmd);
 char				*resolve_command_path(t_tokens *curr, t_all *all, t_program *program);
-//------------------- EXECVE ---------------------//
+
+// src/executor/get_path_exec_utils.c (/5)		⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
 void				free_and_exit_child(t_all *all, t_program *program, int exit_status);
-void				execute_command(t_all *all, t_program *program, t_tokens *curr);
+int					handle_access_errors(t_program *program, t_all *all, char *cmd);
+int					validate_executable(t_program *program, t_all *all, char *cmd_path);
 
+// src/executor/executor_fork_cmd_utils.c (5/5)		⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
+int					init_executor(t_program *program, t_all *all);
+int					handle_fork_error(t_program *program, t_all *all, t_tokens *original, int i);
+void				advance_to_next_command(t_tokens **curr);
+void				finalize_executor(t_all *all, t_program *program);
+int					check_failed_redir_child(pid_t pid, t_program *program); 		//❌ revisar
 
-// src/executor/executor_loop.c (5/5)		⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
-//static int		init_executor(t_program *program, t_all *all);
-//static int		handle_fork_error(t_program *program, t_all *all, t_tokens *original, int i);
-//static int		should_skip_command(t_tokens **curr, t_tokens **cmd_token);
-//static int		prepare_and_fork_command(t_program *program, t_all *all, t_tokens *cmd_token, int i);
-//static void		advance_to_next_command(t_tokens **curr);
+// src/executor/executor_fork_cmd.c (5/5)		🚩_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
+pid_t				fork_and_exec_command(t_all *all, t_tokens *curr, int i, t_program *program);
+int					prepare_and_fork_command(t_program *program, t_all *all, t_tokens *cmd_token, int i);
 int					fork_command_loop(t_program *program, t_all *all);
-//static void		finalize_executor(t_all *all, t_program *program);
+void				wait_child(t_all *all, t_program *program);
 int					executor_loop(t_all *all, t_program *program);
 
-// src/executor/executor_single_cmd.c (/5)		⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
+// src/executor/executor_single_cmd.c (/5)		🚩_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
 int					check_child(t_program *program, t_all *all);
 void				fork_and_run_single_cmd(t_all *all, t_program *program, t_tokens *curr);
+void				execute_command(t_all *all, t_program *program, t_tokens *curr);
 void				run_single_command(t_all *all, t_program *program);
 
-// src/executor/executor.c (/5)		⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
-bool				must_use_env_builtin(char *cmd);
-bool				is_forbidden_env_path(char *cmd);
-bool				must_use_pwd_builtin(char *cmd);
-bool				is_forbidden_pwd_path(char *cmd);
-//static void		handle_fork_error(t_program *program, t_all *all);
-//static void		exec_and_exit_child(t_all *all, t_tokens *curr, t_program *program, int i);
-pid_t				fork_and_exec_command(t_all *all, t_tokens *curr, int i, t_program *program);
-int					check_failed_redir_child(pid_t pid, t_program *program); 		//❌ revisar
-void				wait_child(t_all *all, t_program *program);
+// src/executor/executor.c (/5)		🚩_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
+void				handle_fork_error_2(t_program *program, t_all *all);
+void				exec_and_exit_child(t_all *all, t_tokens *curr, t_program *program, int i);
 void				ft_exec(t_all *all, t_program *program);
 
-// src/executor/executor_utils.c (4/5) ⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES + 🚩_revisar si se usa
+// src/executor/executor_utils.c (4/5) ⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
 t_tokens			*find_cmd (t_tokens *tokens);
 t_tokens			*skip_redir(t_tokens *curr);
 bool				is_empty_string(char *s);
 bool				is_empty_cmd(char *s);
 int					count_type_tokens(t_tokens *tokens, t_type type_to_find);
-bool				init_exec_vals(t_program *program, t_all *all);
 
+// src/executor/executor_utils_2.c (4/5) ⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
+bool				init_exec_vals(t_program *program, t_all *all);
+bool				must_use_env_builtin(char *cmd);
+bool				is_forbidden_env_path(char *cmd);
+bool				must_use_pwd_builtin(char *cmd);
+bool				is_forbidden_pwd_path(char *cmd);
 
 
 
 //#➵⤐╌╌➣⋆➣╌─⤏➵•➵⤐╌╌➣⋆➣╌╌─Builtins──➣⋆➣╌⤏➵•➵⤐╌╌➣⋆➣╌╌➔#
 
-//builtins/builtings.c		⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
+//builtins/builtings.c		🚩_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
 bool				check_builtin(char *cmd);
 int					ft_builtin(t_all *all, t_program *program);
 
@@ -161,7 +162,7 @@ int					ft_echo(t_program *program, t_exec *exec);
 //static char		*prepare_pwd(t_all *all, t_program *program); //solo cd
 int					ft_cd(t_all *all, t_program *program); //solo cd
 
-// src/builtins/pwd.c (2/5)		⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
+// src/builtins/pwd.c (2/5)		🚩_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
 char				*ft_get_env_aux(t_env *env, const char *key);	//cd y pwd
 //static int		check_pwd_error(t_program *program, char **args);
 int					ft_pwd(t_all *all, t_program *program, char **args);

@@ -6,13 +6,13 @@
 /*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 11:13:33 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/19 08:41:17 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/06/30 08:31:19 by mzolotar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "minishell.h"
 
-bool check_builtin(char *cmd) //✅ 
+bool check_builtin(char *cmd)
 {
     if (!cmd)
         return (false);
@@ -27,14 +27,12 @@ bool check_builtin(char *cmd) //✅
     return (false);
 }
 
-int ft_builtin(t_all *all, t_program *program) //✅ 
+int ft_builtin(t_all *all, t_program *program)
 {
 	char *cmd;
 	int exit_code = 0 ;
 
-	//fprintf(stderr, "DEBUG: last_exit_status al entrar en builts = %d\n", program->last_exit_status);	
 	cmd = all->exec->args[0];
-
 	if (ft_strcmp(cmd, "echo") == 0)
 		exit_code = ft_echo(program, all->exec);
 	else if (ft_strcmp(cmd, "cd") == 0)
@@ -52,9 +50,5 @@ int ft_builtin(t_all *all, t_program *program) //✅
 		exit_code = ft_export(all, all->exec->args, program);
 	else if (ft_strncmp(cmd, "unset", 5) == 0)
         exit_code = ft_unset(all, all->exec->args, program);
-
-	//fprintf(stderr, "DEBUG: last_exit_status al salid de builts = %d\n", program->last_exit_status);	
-	//fprintf(stderr, "DEBUG: exit_code = %d\n", exit_code);
 	return (exit_code);
 }
-

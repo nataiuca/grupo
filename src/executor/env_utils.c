@@ -1,8 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   env_utils.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/27 11:53:00 by mzolotar          #+#    #+#             */
+/*   Updated: 2025/06/30 08:34:19 by mzolotar         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-# include "minishell.h"
+#include "minishell.h"
 
-//--------------------- lista enlazada t_env a **program->envp_copy = **matrix ---------------------//
-char	**malloc_env_array(t_env *env, t_program *program) //malloc para lista a matrix
+char	**malloc_env_array(t_env *env, t_program *program)
 {
 	int		count;
 	char	**matrix;
@@ -17,7 +27,7 @@ char	**malloc_env_array(t_env *env, t_program *program) //malloc para lista a ma
 	return (matrix);
 }
 
-char	**build_envp_from_list(t_env *env, t_program *program) //vuleve convertir lista enlazada a **matrix (se usa en cd y child -> exec_cmd)
+char	**build_envp_from_list(t_env *env, t_program *program)
 {
 	char	**matrix;
 	char	*temp;
@@ -33,9 +43,9 @@ char	**build_envp_from_list(t_env *env, t_program *program) //vuleve convertir l
 		if (env->value)
 			matrix[i] = ft_strjoin(temp, env->value);
 		else
-			matrix[i] = ft_strdup(temp); // solo "KEY="
+			matrix[i] = ft_strdup(temp);
 		free(temp);
-		if (!matrix[i]) // control de error
+		if (!matrix[i])
 			return (free_split_strs(matrix), NULL);
 		i++;
 		env = env->next;
@@ -44,8 +54,6 @@ char	**build_envp_from_list(t_env *env, t_program *program) //vuleve convertir l
 	return (matrix);
 }
 
-
-//--------------------- aux f() ---------------------//
 int	env_list_length(t_env *env)
 {
 	int	count;
@@ -71,19 +79,13 @@ int	env_array_size(char **envp)
 	return (size);
 }
 
-void update_envp_copy(t_program *program) //actualiza envp_copy
+void	update_envp_copy(t_program *program)
 {
-	//fprintf(stderr,"\033[0;34m ⚠️ DEBUG: entrando den update_envp  \033[0m\n");
 	if (!program)
-		return;
+		return ;
 	if (program->envp_copy)
 		free_split_strs(program->envp_copy);
-
-	//fprintf(stderr,"\033[0;34m ⚠️ DEBUG: envp_copy supuestamente acrtualizado \033[0m\n");
 	program->envp_copy = build_envp_from_list(program->env, program);
 	if (!program->envp_copy)
-	{
-		//fprintf(stderr,"update_envp\n");  //testeo
-		return;
-	}
+		return ;
 }

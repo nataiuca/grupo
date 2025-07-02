@@ -1,48 +1,29 @@
+
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── dramas──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+here doc:
+❌1. mas de 1 here con ctrl+c abre todos los here_doc y no debería -> << ls << la <<ll 
+❌2. en fork hijo no se abre bien
+❌3. ctrl+c despue de ctrl+d en here se comporta diferente.  << ls + ctrl+d + ctrl+c
+❌ add_history -> falla en valgrind -> const char*
+❌ testear actualizacion de prompt 
+
+CTRD +D -> ./mini ./mini
+
+
+✅ CTRD +D -> exit -> espacio demás despues de Ctrl+C y exit demás
+✅ espacio demás despues de Ctrl+C
+✅ CTRD +D -> espacio demás despues de Ctrl+C y exit demás
+✅ las señales de builtins no se recetean bien- > handler_builtins se ralla despues de builtin + ctrl C
+✅ despues de ctrl c -> ctl +d sale mal de valgrind
+✅ no sale de valgrind despues de ctrl+c + ctrl+d
+✅ saltos de linea de mas despues de ctrl+c
+
 //#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌──  ─╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
 ❌ .
 ❌ ..
 
 cd . -> ???
-
-✅ ls > > file
-✅ echo hola |  << ls
-✅ echo hola | cat > file
-✅ echo hola > file | cat
-
-❌ echo hola | cat << ls
-❌ ls | > file
-❌ ls | > file wc -l 
- echo hola | > file wc -l            -> file tiene 1
-❌ echo hola | cat << ls | > file
-❌ echo hola | > file
-
-
-❌ echo hola |> wc -l                  -> -l: command not found
-❌ echo hola |> grep hola              -> hola: command not found
-
-
-
-❌ echo hola | > file        # falta comando a la derecha
-✅ > file                    # sin comando
-
-
-
-//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── dramas──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
-
-add_history -> falla en valgrind -> const char*
-
-CTRD +D -> ./mini ./mini
-✅ CTRD +D -> exit -> espacio demás despues de Ctrl+C y exit demás
-espacio demás despues de Ctrl+C
- CTRD +D -> espacio demás despues de Ctrl+C y exit demás
-✅ las señales de builtins no se recetean bien- > handler_builtins se ralla despues de builtin + ctrl C
-despues de ctrl c -> ctl +d sale mal de valgrind
-
-
-no sale de valgrind despues de ctrl+c + ctrl+d
-saltos de linea de mas despues de ctrl+c
-
-
 
 //#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── Signal handling: ──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
 
@@ -54,6 +35,7 @@ sleep 10 y sleep 10 CTR+C o CTRL+D
 
 
 sleep 10 | cat				-> Tu minishell debería imprimir un salto de línea y establecer g_atomic = SIGINT.
+ls | sleep 10
 yes | head -n 5
 cat | cat
 ls | nonexistent
@@ -69,9 +51,13 @@ Y verifica si el código de salida refleja correctamente:
 
 //#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── Signal handling: TESTEO ──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
 1. liena vacia:
+	Ctrl+D 
+1. liena vacia:
 	 Ctrl+C
 	 Ctrl+C  +  Ctrl+D 
 
+2. linea con caracteres: lalala + señales
+	Ctrl+D 
 2. linea con caracteres: lalala + señales
 	 Ctrl+C
 	 Ctrl+C  +  Ctrl+D 

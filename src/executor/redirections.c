@@ -1,5 +1,23 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   redirections.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/27 12:01:30 by mzolotar          #+#    #+#             */
+/*   Updated: 2025/07/01 13:12:38 by mzolotar         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 # include "minishell.h"
+
+int get_output_flags(int type)
+{
+	if (type == redir_r_u)
+		return (O_WRONLY | O_CREAT | O_TRUNC);
+	return (O_WRONLY | O_CREAT | O_APPEND);
+}
 
 bool	config_fd_redir(int infile, int outfile, t_program *program)
 {
@@ -26,133 +44,6 @@ bool	config_fd_redir(int infile, int outfile, t_program *program)
 	return (true);
 }
 
-int	handle_output(t_program *program, t_exec *exec, char *file, int flags)
-{
-	if (exec->outfile > 2)
-	{
-		//fprintf(stderr,"\033[0;34m ⚠️ DEBUG: (exec->outfile > 2) \033[0m\n");
-		close(exec->outfile);
-	}
-
-	exec->outfile = open(file, flags, 0644);
-	if (exec->outfile == -1)
-	{
-		//fprintf(stderr,"\033[0;34m ⚠️ DEBUG: saliendo handle_output \n  \033[0m\n");
-		ft_error(program, strerror(errno), file, 1);
-		return (-1); //NOT FREES
-	}
-	return (0);
-}
-
-int	handle_input(t_program *program, t_exec *exec, char *file)
-{
-	//printf("⚠️DEBUG: entrando handle_input\n");
-
-	if (exec->infile > 2)
-	{
-		//fprintf(stderr,"\033[0;34m ⚠️ DEBUG: (exec->infile > 2) \033[0m\n");
-		close(exec->infile);
-	}
-
-	exec->infile = open(file, O_RDONLY);
-	if (exec->infile == -1)
-	{
-		//fprintf(stderr,"\033[0;34m ⚠️ DEBUG: saliendo handle_input \n  \033[0m\n");
-		ft_error(program, strerror(errno), file, 1);
-		return (-1);  //NOT FREES
-	}
-
-	//printf("⚠️DEBUG: saliendo handle_input\n");
-	return (0);
-}
-
-int get_output_flags(int type)
-{
-	if (type == redir_r_u)
-		return (O_WRONLY | O_CREAT | O_TRUNC);
-	return (O_WRONLY | O_CREAT | O_APPEND);
-}
-
-int	process_output_redirection(t_program *program, t_exec *exec, t_tokens *curr)
-{
-	int	flags;
-	int	result;
-	
-	//printf("⚠️DEBUG:entrando process_output_redirection\n");
-	flags = get_output_flags(curr->type);
-
-	if (!curr->next)
-	{
-		ft_error(program, "Missing redirection target", NULL, 1); 	//🚩🚩🚩revisar este error
-		return (-1);
-	}
-
-	result = handle_output(program, exec, curr->next->content, flags);
-	if (result == -1 || exec->outfile == -1)
-		return (-1);
-	//fprintf(stderr,"\033[0;31m ⚠️DEBUG: process_output_redirection -> infile %d: \033[0m\n", exec->infile);
-	//fprintf(stderr,"\033[0;31m ⚠️DEBUG: process_output_redirection -> outfile %d: \033[0m\n", exec->outfile);
-	//printf("⚠️DEBUG:saliendo process_output_redirection\n");
-	return (0);
-}
-
-int	process_input_redirection(t_all *all, t_program *program, t_tokens *curr, int *heredoc_index)
-{
-	char	*file;
-	int		result;
-	//printf("⚠️DEBUG:entrando process_input_redirection\n");
-	
-	if (curr->type == redir_l_d)
-	{
-		file = all->here->here_name_docs[*heredoc_index];
-		(*heredoc_index)++;
-	}
-	else
-		file = curr->next->content;
-		
-	if (!curr->next)
-	{
-		ft_error(program, "Missing redirection target", NULL, 1); 	//🚩🚩🚩revisar este error
-		return (-1);
-	}
-	result = handle_input(program, all->exec, file);
-	
-	if (result == -1 || all->exec->infile == -1)
-	{
-		//printf("⚠️DEBUG: saliendo process_input_redirection con -1\n");
-		return (-1);
-	}
-	//printf("⚠️DEBUG: saliendo process_input_redirection\n");
-	return (0);
-}
-
-bool apply_redir(t_all *all, t_program *program)
-{
-    t_tokens *curr;
-    int heredoc_index;
-    int ret;
-
-    curr = all->tokens;
-    heredoc_index = 0;
-    while (curr && curr->type != pipe_type)
-    {
-        if (curr->type == redir_r_u || curr->type == redir_r_d)
-        {
-            ret = process_output_redirection(program, all->exec, curr);
-            if (ret == -1)
-                return (false);
-        }
-        else if (curr->type == redir_l_u || curr->type == redir_l_d)
-        {
-            ret = process_input_redirection(all, program, curr, &heredoc_index);
-            if (ret == -1)
-                return (false);
-        }
-        curr = curr->next;
-    }
-    return (true);
-}
-
 static bool	redirect_input(t_exec *exec, int i, t_program *program)
 {
 	if (exec->infile != -1)
@@ -170,11 +61,13 @@ static bool	redirect_input(t_exec *exec, int i, t_program *program)
 	return (true);
 }
 
-static bool	redirect_output(t_exec *exec, int i, t_program *program)
+ bool	redirect_output(t_exec *exec, int i, t_program *program)
 {
 	if (exec->outfile != -1)
 	{
 		//fprintf(stderr, "⚠️DEBUG -> REDIR: dup2 outfile %d -> stdout\n", exec->outfile);
+		//fprintf(stderr, "arg[0]: %s\n", exec->args ? exec->args[0] : "(null)");
+		//fprintf(stderr, "  -> infile: %d, outfile: %d\n", exec->infile, exec->outfile);		
 		if (dup2(exec->outfile, STDOUT_FILENO) == -1)
 			return (ft_error(program, strerror(errno), "dup2 outfile", 1), false);
 	}

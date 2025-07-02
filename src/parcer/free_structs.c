@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   free_structs.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: natferna <natferna@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 14:49:10 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/27 02:04:51 by natferna         ###   ########.fr       */
+/*   Updated: 2025/07/01 13:28:02 by mzolotar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,40 +32,28 @@ void free_meta_struct(t_metachars *meta)
 	free(meta);
 }
 
-/**
- * @brief Frees all resources related to here-docs.
- *
- * @param here Pointer to the here-doc structure to free.
- * @return void
- */
-void free_here(t_here **ph)
+// mode == 0 -> FREE_ALL ->  ERROR ->free all
+// mode == 1 -> FREE_CHILD -> Liberar todo excepto unlink
+// mode == 2 -> FREE_ONLY_HEREDOC -> Solo liberar here_doc -> no se usa en mi programa
+void free_here(t_here *here, int mode)
 {
-    t_here  *here;
-    int     i;
-
-    if (!ph || !*ph)
+    int i;
+    
+    if (!here)
         return;
-    here = *ph;
-    i = 0;
-    while (i < HERE_DOCS_MAX)
+    i=0;
+    while ( i < HERE_DOCS_MAX)
     {
         if (here->fd_array[i] != -1)
-        {
             close(here->fd_array[i]);
-            here->fd_array[i] = -1;
-        }
         if (here->here_name_docs[i])
         {
-            unlink(here->here_name_docs[i]);
+            if (mode != FREE_CHILD) // SOLO UNLINK SI NO ESTAMOS EN FREE_CHILD
+                unlink(here->here_name_docs[i]);
             free(here->here_name_docs[i]);
             here->here_name_docs[i] = NULL;
         }
         i++;
-    }
-    if (here->expanded_line_here)
-    {
-        free(here->expanded_line_here);
-        here->expanded_line_here = NULL;
     }
     if (here->base_cwd)
     {
@@ -73,10 +61,9 @@ void free_here(t_here **ph)
         here->base_cwd = NULL;
     }
     free(here);
-    *ph = NULL;
 }
 
-void free_program(t_program *program)
+void free_program(t_program *program) 
 {
 	if (!program)
 		return ;
@@ -99,48 +86,43 @@ void free_program(t_program *program)
         //free_prompt
         if (program->prompt_hostname)
             free(program->prompt_hostname);  // seguro ahora
-
     }
 }
 
-void	free_all_structs(t_all *all)
+// mode == 0 -> ERROR ->free all
+// mode == 1 -> Liberar todo excepto here_doc 
+// mode == 2 -> Solo liberar here_doc -> no se usa en mi programa
+void	free_all_structs(t_all *all, int mode) //🚩_NORMA
 {
-	{
-        fprintf(stderr, "DEBUG (free_all_structs): Freeing all.line: %s\n", all->line);
+    if (all->line) 
+    {
         free(all->line);
-        all->line = NULL; // Asegúrate de ponerlo a NULL después de liberar
+        all->line = NULL;
     }
-	if (all->exec)
+    if (all->exec) 
     {
-		free_exec(all->exec);
-	    all->exec = NULL;
+        free_exec(all->exec);
+        all->exec = NULL;
     }
-	if (all->meta)
+    if (all->meta) 
     {
-		free_meta_struct(all->meta);
-	    all->meta = NULL;
+        free_meta_struct(all->meta);
+        all->meta = NULL;
     }
-	if (all->here)
-    {
-		free_here(&all->here);
-	    all->here = NULL;
-    }
-	if (all->tokens_head)
+    if (all->tokens_head) 
     {
         free_tokens_list(&all->tokens_head);
         all->tokens_head = NULL;
         all->tokens = NULL;
     }
-    else if (!all->tokens_head)         //revisar este free
+    if (all->token) 
     {
-		free_tokens_list(&all->tokens);
-	    all->tokens = NULL;
-        all->tokens_head = NULL;
+        free_split_strs(all->token);
+        all->token = NULL;
     }
-	if (all->token)
+	if (all->here) 
     {
-		free_split_strs(all->token);
-	    all->token = NULL;
-    }
-	all->line = NULL;
+		free_here(all->here, mode);
+		all->here = NULL;
+	}
 }

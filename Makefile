@@ -18,8 +18,7 @@ CC          := cc
 CFLAGS      := -Wall -Werror -Wextra -g
 RM          := rm -rf
 
-READLINE_INC := -I/usr/local/opt/readline/include #he tenido que modificarlo porque lo tengo en otra ubicacion
-READLINE_LIB := -L/usr/local/opt/readline/lib -lreadline
+READLINE_FLAGS			:=	-lreadline
 
 # Directories
 SRC_DIR     := src
@@ -32,7 +31,6 @@ INC_DIR     := inc
 LIBFT_DIR	:= libft/
 LIBFT		:= $(LIBFT_DIR)/libft.a
 INCLUDES_LIBFT := -I$(LIBFT_DIR)
-INCLUDES_MINISHELL := -I$(INC_DIR)
 
 
 #◉──▣──▢◇▢───▣──◉•◉───▣───▢ minishell includes ▢───▣───◉•◉───▣──▢◇▢───▣──◉#
@@ -56,18 +54,23 @@ SRCS 					:= \
 						builtins/unset.c \
 						\
 						\
-						executor/executor_single_cmd.c \
+						executor/built_args.c \
+						executor/env_init.c \
+						executor/env_utils.c \
 						executor/executor.c \
-						executor/executor_loop.c \
+						executor/executor_fork_cmd.c  \
+						executor/executor_fork_cmd_utils.c \
+						executor/executor_single_cmd.c \
+						executor/executor_utils.c \
+						executor/executor_utils_2.c \
+						executor/get_path_exec_utils.c \
 						executor/get_path_execve.c \
 						executor/here_doc.c \
 						executor/here_doc_utils.c \
-						executor/executor_utils.c \
-						executor/built_args.c \
-						executor/redirections.c \
-						executor/env_init.c \
-						executor/env_utils.c \
 						executor/pipes.c \
+						executor/pipes_free.c \
+						executor/redirections.c \
+						executor/redirections_2.c \
 						\
 						\
 						parcer/var_check_expand.c \
@@ -122,10 +125,12 @@ $(LIBFT):
 	$(MAKE) -C $(LIBFT_DIR)
 
 $(NAME): $(OBJS)
-	$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(READLINE_LIB) -L$(LIBFT_DIR) -lft
+	$(CC) $(CFLAGS) -o $(NAME) $(OBJS) -L$(LIBFT_DIR) $(READLINE_FLAGS) -lft 
+	@echo "$(CURRENT_COLOR) ✅ $(NAME) created.\n$(RESET)"
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
-	$(CC) $(CFLAGS) $(INCLUDES_MINISHELL) $(INCLUDES_LIBFT) $(READLINE_INC) -c $< -o $@
+#	@echo "$(CYAN)🔧 Compiling: $<$(RESET)"
+	$(CC) $(CFLAGS) $(INCLUDES_MINISHELL) $(INCLUDES_LIBFT) -c $< -o $@
 
 $(OBJ_DIR): 
 	@mkdir -p  $(OBJ_DIR) $(OBJ_DIR)/builtins $(OBJ_DIR)/executor $(OBJ_DIR)/parcer $(OBJ_DIR)/utils 
@@ -144,8 +149,19 @@ fclean: clean
 re: fclean all
 
 #◉───▣───▢◇▢───▣───◉•◉───▣───▢   Valgrind   ▢───▣───◉•◉───▣───▢◇▢───▣───◉#
-
+#🧹 memory_leaks todo:
 VALGRIND := valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-limit=no --log-file=dev/test/valgrind_outputs/valgrind_output_$(shell date +%Y%m%d_%H%M%S).log -s
+# valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-limit=no ./minishell
+
+# 🧹child:
+# valgrind --trace-children=yes ./minishell
+
+# 🧹fd's:
+# valgrind --track-fds=yes ./minishell
+
+# 🧹fd's + memoria:
+#VALGRIND := valgrind --leak-check=full --show-leak-kinds=all --track-fds=yes --track-origins=yes --error-limit=no --log-file=dev/test/valgrind_outputs/valgrind_output_$(shell date +%Y%m%d_%H%M%S).log -s
+
 
 valgrind: all
 

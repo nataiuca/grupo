@@ -1,7 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   export_utils_2.c                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/30 08:28:13 by mzolotar          #+#    #+#             */
+/*   Updated: 2025/06/30 08:32:39 by mzolotar         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "minishell.h"
 
-int	init_env_key(t_env *node, char *key)  //✅ 
+int	init_env_key(t_env *node, char *key)
 {
 	node->key = ft_strdup(key);
 	if (!node->key)
@@ -12,7 +23,7 @@ int	init_env_key(t_env *node, char *key)  //✅
 	return (1);
 }
 
-int	init_env_value_flags(t_env *node, char *value)  //✅ 
+int	init_env_value_flags(t_env *node, char *value)
 {
 	if (value)
 	{
@@ -33,7 +44,7 @@ int	init_env_value_flags(t_env *node, char *value)  //✅
 	return (1);
 }
 
-t_env	*create_env_node_from_key_value(char *key, char *value)  //✅ 
+t_env	*create_env_node_from_key_value(char *key, char *value)
 {
 	t_env	*new_node;
 
@@ -48,7 +59,7 @@ t_env	*create_env_node_from_key_value(char *key, char *value)  //✅
 	return (new_node);
 }
 
-void	append_env_node(t_env **env, t_env *new_node)  //✅ 
+void	append_env_node(t_env **env, t_env *new_node)
 {
 	t_env	*tmp;
 
@@ -63,7 +74,7 @@ void	append_env_node(t_env **env, t_env *new_node)  //✅
 	tmp->next = new_node;
 }
 
-void	append_new_env_var(t_env **env, char *key, char *value) //✅ 
+void	append_new_env_var(t_env **env, char *key, char *value)
 {
 	t_env	*new_node;
 

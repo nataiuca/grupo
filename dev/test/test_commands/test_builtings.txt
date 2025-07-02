@@ -368,6 +368,9 @@ touch file; chmod 444 file
 ✅ pwd | grep $USER | tee file.txt
 ✅ pwd > file.txt | cat file.txt   
 ✅ pwd | tee file.txt | wc -l
+✅ pwd | tee file.txt | wc > file -l
+✅ pwd | wc > file -l
+✅ pwd | tee file.txt | wc -l > file 
 ✅ pwd | grep "/" | cat          # Pipe con grep y cat
 
 //#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── 💥 testeo builtings exit: ◦ exit sin opciones. 💥─╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#

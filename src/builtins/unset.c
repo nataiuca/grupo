@@ -6,13 +6,13 @@
 /*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 12:44:25 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/19 09:21:08 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/06/30 08:33:49 by mzolotar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "minishell.h"
 
-int check_key(char *str) //✅
+int check_key(char *str)
 {
 	int	i;
 
@@ -28,7 +28,7 @@ int check_key(char *str) //✅
 	return (1);
 }
 
-int	delete_env_node(t_env **env, const char *key)  //✅
+int	delete_env_node(t_env **env, const char *key)
 {
     t_env *current;
     t_env *prev;
@@ -55,7 +55,7 @@ int	delete_env_node(t_env **env, const char *key)  //✅
     return(1);
 }
 
-static void print_unset_error(char *arg, t_program *program) //✅
+static void print_unset_error(char *arg, t_program *program)
 {
     ft_putstr_fd("bash: unset: `", STDERR_FILENO);
     ft_putstr_fd(arg, STDERR_FILENO);
@@ -64,7 +64,7 @@ static void print_unset_error(char *arg, t_program *program) //✅
     program->last_exit_status = 1;
 }
 
-int ft_unset(t_all *all, char **args, t_program *program) //✅
+int ft_unset(t_all *all, char **args, t_program *program)
 {
     int i;
 	int err;
@@ -82,12 +82,9 @@ int ft_unset(t_all *all, char **args, t_program *program) //✅
 			err = 1;
         }
         else if (delete_env_node(&program->env, args[i]) == 0)
-        {
             update_envp_copy(program);
-        }
         i++;
     }
-    //fprintf(stderr,"\033[0;34m ⚠️ DEBUG: unset con exito  \033[0m\n");
-	program->last_exit_status = 0;      //  SI
+	program->last_exit_status = 0;
     return (err);
 }

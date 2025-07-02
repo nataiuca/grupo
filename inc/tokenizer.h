@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   tokenizer.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: natferna <natferna@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 08:42:51 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/26 21:32:17 by natferna         ###   ########.fr       */
+/*   Updated: 2025/07/01 13:41:12 by mzolotar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,7 @@
 
 //#➵⤐╌╌➣⋆➣╌─⤏➵•➵⤐╌╌➣⋆➣╌╌─Parsing──➣⋆➣╌⤏➵•➵⤐╌╌➣⋆➣╌╌➔#
 
-//➛ src/parcer/minishell_loop.c (/5) ⚠️_NORMA + ⚠️_DESCRIPCIONES c + ✅_se_usa
-char *get_input_line(t_program *program, t_all *all);
+//➛ src/parcer/minishell_loop.c (/5) 🚩_NORMA + ⚠️_DESCRIPCIONES c + ✅_se_usa
 void				minishell_loop(t_program *program);
 
 
@@ -101,7 +100,7 @@ void				check_and_quit_quotes_token(t_tokens *tokens, t_metachars *meta);
 
 
 //--check_type_tokens──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
-// src/parcer/tokens_type_check_type.c (5/5)  ⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES + ✅_se_usa
+// src/parcer/tokens_type_check_type.c (5/5)  🚩_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES + ✅_se_usa + 🚩_quitar funcion de debug
 bool				try_set_as_redirection(t_tokens *current, t_tokens *head, t_metachars *meta);
 bool				try_set_as_redir_follower(t_tokens *current, t_tokens *head, t_metachars *meta);
 bool				assign_token_type(t_tokens *current, t_tokens *head, t_metachars *meta);
@@ -137,8 +136,8 @@ bool				check_bash_before_here(t_tokens *tokens);
 bool				check_bash_pipe_before_here(t_tokens *tokens);
 bool				check_open_pipe_token(t_tokens *tokens);
 bool				check_bash_error_token(t_tokens *tokens);
- bool check_bash_after_here(t_tokens *tokens, t_all *all);
-bool check_bash_pipe_error(t_tokens *tokens, t_program *program, t_all *all);
+bool				check_bash_after_here(t_tokens *tokens);
+bool				check_bash_pipe_error(t_tokens *tokens, t_program *program);
 //--check_bash_errors_token_end──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
 
 

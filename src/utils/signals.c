@@ -67,7 +67,7 @@ void	handler_builtins(int signum)
 	}
 }
 //CTRL + D
-bool	catch_interactive(t_program *program, t_all *all, char *input)
+bool	catch_ctrl_d(t_program *program, t_all *all, char *input)
 {
 	(void)program;		//❌ quitar
 	(void)all;			//❌ quitar

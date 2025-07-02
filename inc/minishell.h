@@ -6,7 +6,7 @@
 /*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 08:44:49 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/26 10:47:06 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/07/01 13:39:39 by mzolotar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ void				signal_handling(void);
 void				handler_child(int signum);				//child handler
 void				handler_herequote(int signum);		 //here handler
 void				handler_builtins(int signum);
-bool				catch_interactive(t_program *program, t_all *all, char *input);
+bool				catch_ctrl_d(t_program *program, t_all *all, char *input);
 
 // src/utils/herequote_utils.c (/5)  ⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES
 char				*herequote_hook_rl(t_program *program);

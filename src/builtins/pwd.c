@@ -6,13 +6,13 @@
 /*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 12:37:37 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/19 08:48:04 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/06/30 08:33:15 by mzolotar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "minishell.h"
 
-char	*ft_get_env_aux(t_env *env, const char *key) //✅ 
+char	*ft_get_env_aux(t_env *env, const char *key)
 {
 	if (!env)
 		return NULL;
@@ -25,11 +25,10 @@ char	*ft_get_env_aux(t_env *env, const char *key) //✅
 	return (NULL);
 }
 
-static int	check_pwd_error(t_program *program, char **args) //✅ 
+static int	check_pwd_error(t_program *program, char **args)
 {
 	if (!args[1])
 		return (0); // no hay error
-
 	if (args[1][0] == '-') // opción inválida
 	{
 		ft_putstr_fd("bash: pwd: ", STDERR_FILENO);
@@ -43,7 +42,7 @@ static int	check_pwd_error(t_program *program, char **args) //✅
 	return(0);
 }
 
-int	ft_pwd(t_all *all, t_program *program, char **args) //✅ 
+int	ft_pwd(t_all *all, t_program *program, char **args) //🚩 NORMA
 {
 	char	pwd_buffer[PATH_MAX];
 	char	*pwd;

@@ -6,13 +6,13 @@
 /*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 07:31:19 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/19 08:41:51 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/07/01 13:19:33 by mzolotar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "minishell.h"
 
-static int	echo_flag(char *str) //✅ 
+static int	echo_flag(char *str)
 {
 	int	i;
 
@@ -30,7 +30,7 @@ static int	echo_flag(char *str) //✅
 	return (1);
 }
 
-static bool check_arg_max(t_program *program, char **args, int start_index) //✅ 
+static bool check_arg_max(t_program *program, char **args, int start_index)
 {
 	int total_len;
 	int i;
@@ -49,12 +49,12 @@ static bool check_arg_max(t_program *program, char **args, int start_index) //�
 	{
 		ft_itoa_without_malloc(ARG_MAX_ECHO, limit_str, sizeof(limit_str));
 		ft_error(program, MSG_ERR_ARG_LEN, limit_str, 1);
-		return false;
+		return (false);
 	}
-	return true;
+	return (true);
 }
 
-static int	skip_echo_flags(char **args, int *print_newline) //✅ 
+static int	skip_echo_flags(char **args, int *print_newline)
 {
 	int	i;
 	
@@ -67,7 +67,7 @@ static int	skip_echo_flags(char **args, int *print_newline) //✅
 	return (i);
 }
 
-static void	print_echo_args(char **args, int i, int out) //✅ 
+static void	print_echo_args(char **args, int i, int out)
 {
 	while (args[i])
 	{
@@ -78,29 +78,24 @@ static void	print_echo_args(char **args, int i, int out) //✅
 	}
 }
 
-int	ft_echo(t_program *program, t_exec *exec) //✅ 
+int	ft_echo(t_program *program, t_exec *exec)
 {
 	int		i;
 	int		out;
 	int		print_newline;
 
 	print_newline = 0;
-
+	
 	if (exec->outfile != -1)
 		out = exec->outfile;
 	else
 		out = STDOUT_FILENO;
-
 	i = skip_echo_flags(exec->args, &print_newline);
-
 	if (!check_arg_max(program, exec->args, i))
 		return (1);
-
 	print_echo_args(exec->args, i, out);
-
 	if (!print_newline)
 		ft_putchar_fd('\n', out);
-
-	program->last_exit_status = 0;		//SI
+	program->last_exit_status = 0;
 	return (0);
 }

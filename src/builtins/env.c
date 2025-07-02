@@ -6,13 +6,13 @@
 /*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 12:44:15 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/19 08:56:49 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/06/30 08:32:15 by mzolotar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "minishell.h"
 
-static void	write_env(t_env *env, int out_fd) //✅ 
+static void	write_env(t_env *env, int out_fd)
 {
 	if (!env)
 		return;
@@ -28,7 +28,7 @@ static void	write_env(t_env *env, int out_fd) //✅
 	}
 }
 
-static bool has_valid_path(t_env *env) //✅
+static bool has_valid_path(t_env *env)
 {
 	while (env)
 	{
@@ -36,14 +36,13 @@ static bool has_valid_path(t_env *env) //✅
 			return (env->value && env->value[0] != '\0');
 		env = env->next;
 	}
-	return false;
+	return (false);
 }
 
-static int	check_env_error(t_program *program, char **args)//✅ 
+static int	check_env_error(t_program *program, char **args)
 {
 	if (!args[1])
 		return (0); // no hay error
-
 	if (args[1][0] == '-') // opción inválida
 	{
 		ft_putstr_fd("env: invalid option -- '", STDERR_FILENO);
@@ -63,8 +62,7 @@ static int	check_env_error(t_program *program, char **args)//✅
 	}
 }
 
-
-int	ft_env(t_program *program, t_all *all, char **args) //✅ 
+int	ft_env(t_program *program, t_all *all, char **args)
 {
 	int out;
 	int	error_code;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   executor_utils.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: natferna <natferna@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 11:12:06 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/26 21:50:56 by natferna         ###   ########.fr       */
+/*   Updated: 2025/06/30 08:18:00 by mzolotar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,6 @@ t_tokens	*skip_redir(t_tokens *curr)
 }
 
 //✅ para revisar este caso: ""  y '' debe ser como -> Command '' not found. en f() (t_all all, t_program *program)
-
 bool	is_empty_string(char *s)
 {
 	int	i;
@@ -61,10 +60,8 @@ bool	is_empty_string(char *s)
 	return (true);
 }
 	
-
 bool	is_empty_cmd(char *s)
 {
-
 	if (!s)
 		return (true);
 	if (s[0] == '\0')
@@ -84,22 +81,4 @@ int	count_type_tokens(t_tokens *tokens, t_type type_to_find)
 		tokens = tokens->next;
 	}
 	return (count);
-}
-
-bool init_exec_vals(t_program *program, t_all *all)
-{
-    // ELIMINAR ESTA LÍNEA:
-    // all->here->base_cwd = ft_strdup(program->prompt_cwd);
-
-    // Asegurarse de que all->here->base_cwd ya esté inicializado
-    // (ahora se hace en init_here_struct)
-    if (!all->here->base_cwd) // Esto debería ser una comprobación de seguridad, no el punto de asignación
-    {
-        ft_error(program, "Internal error: base_cwd not initialized in init_here_struct", NULL, 1);
-        return (false);
-    }
-
-    all->exec->num_pipes = count_type_tokens(all->tokens, pipe_type);
-    all->exec->num_cmds = count_type_tokens(all->tokens, command);
-    return (true);
 }

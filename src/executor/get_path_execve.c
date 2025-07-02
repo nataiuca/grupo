@@ -1,52 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_path_execve.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/30 07:35:29 by mzolotar          #+#    #+#             */
+/*   Updated: 2025/06/30 08:29:07 by mzolotar         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 # include "minishell.h"
-
-int	handle_access_errors(t_program *program, t_all *all, char *cmd)
-{
-	struct stat	info;
-	(void)all;
-	if (stat(cmd, &info) == -1)
-	{
-		//fprintf(stderr,"\033[0;34m ⚠️ DEBUG: testeando (stat(cmd, &info) == -1) en  handle_access_errors \033[0m\n");
-		ft_error(program, MSG_ERR_NO_SUCH_FILE, cmd, 127);
-		return  (127);
-	}
-	if (S_ISDIR(info.st_mode))
-	{
-		//fprintf(stderr,"\033[0;34m ⚠️ DEBUG: testeando (S_ISDIR(info.st_mode)) en  handle_access_errors \033[0m\n");
-		ft_error(program, MSG_ERR_IS_DIRECTORY, cmd, 126);
-		return  (126);
-	}
-	if (access(cmd, X_OK) == -1)
-	{
-		//fprintf(stderr,"\033[0;34m ⚠️ DEBUG: testeando (access(cmd, X_OK) == -1) en  handle_access_errors \033[0m\n");
-		ft_error(program, MSG_ERR_PERMISSION_DENIED, cmd, 126);
-		return  (126);
-	}
-	return  (0);
-}
-
-int 	validate_executable(t_program *program,t_all *all, char *cmd_path)
-{
-	struct stat	sb;
-
-	(void)all;
-	if (stat(cmd_path, &sb) == 0 && S_ISDIR(sb.st_mode))
-	{
-		//fprintf(stderr,"\033[0;34m ⚠️ DEBUG: testeando stat(cmd_path, &sb) == 0 && S_ISDIR(sb.st_mode) en  \n validate_executable \033[0m\n");
-		ft_error(program, MSG_ERR_IS_DIRECTORY, cmd_path, 126);
-		return  (126);
-	}
-	if (access(cmd_path, X_OK) != 0)
-	{
-		//fprintf(stderr,"\033[0;34m ⚠️ DEBUG: testeando access(cmd_path, X_OK) != 0 en  \n validate_executable \033[0m\n");
-		ft_error(program, MSG_ERR_PERMISSION_DENIED, cmd_path, 126);
-		return  (126);
-	}	
-	return 0;
-}
-
-//------------------ GET PATH --------------------//
 
 char	*get_cmd_full_path(char *cmd)
 {
@@ -94,7 +58,6 @@ char	**extract_path_dirs(char **envp)
 	return (NULL);
 }
 
-
 char	*find_cmd_in_paths(t_program *program, char *cmd)
 {
 	char	**paths;
@@ -119,7 +82,6 @@ char	*find_cmd_in_paths(t_program *program, char *cmd)
 	free_split_strs(paths);
 	return (NULL);
 }
-
 
 char	*resolve_command_path(t_tokens *curr, t_all *all, t_program *program)
 {
@@ -148,54 +110,4 @@ char	*resolve_command_path(t_tokens *curr, t_all *all, t_program *program)
 		return (NULL);
 	}
 	return (cmd_path);
-}
-
-
-//------------------- EXECVE ---------------------//
-void free_and_exit_child(t_all *all, t_program *program, int exit_status)
-{
-	free_child (program, all);
-	exit(exit_status);
-}
-
-void	execute_command(t_all *all, t_program *program, t_tokens *curr)
-{
-	//fprintf(stderr,"\033[0;34m ⚠️DEBUG: ha entrado en exec_cmd en hijo \n  \033[0m\n");
-	char	*cmd_path = NULL;
-	int		status;
-
-	fprintf(stderr, "DEBUG (execute_command): Executing command:\n");
-    fprintf(stderr, "  Path: %s\n", cmd_path);
-    fprintf(stderr, "  Args:\n");
-    for (int i = 0; all->exec->args && all->exec->args[i]; i++)
-        fprintf(stderr, "    [%d]: \"%s\"\n", i, all->exec->args[i]);
-	if (!curr || !curr->content || !update_args(all->exec, curr, program))
-		exit(1);
-	update_envp_copy(program);
-	cmd_path = resolve_command_path(curr, all, program);
-	if (!cmd_path)
-	{
-		//fprintf(stderr,"\033[0;34m ⚠️ DEBUG: saliendo de get_executable_path (cmd not found) en exec_cmd\n  \033[0m\n");
-		free_and_exit_child(all, program, program->last_exit_status);
-	}
-	//fprintf(stderr,"\033[0;34m ⚠️DEBUG: despues de get_executable_path \n  \033[0m\n");
-	status = validate_executable(program, all, cmd_path);
-	if (status != 0)
-	{
-		free(cmd_path);
-		free_and_exit_child(all, program, program->last_exit_status);
-	}
-	//fprintf(stderr,"\033[0;34m ⚠️DEBUG: despues de get_executable_path \n  \033[0m\n");
-	//fprintf(stderr,"\033[0;34m ⚠️DEBUG: all->exec->args en execve: %s \033[0m\n", all->exec->args[0]);
-	//fprintf(stderr,"\033[0;34m ⚠️DEBUG: all->exec->args en execve : %s  \033[0m\n", all->exec->args[1]);
-	if (execve(cmd_path, all->exec->args, program->envp_copy) != 0)
-	{
-		//fprintf(stderr,"\033[0;34m⚠️ DEBUG: saliendo de execve con -1 \n  \033[0m\n");	
-		ft_error(program, MSG_ERR_CMD_NOT_FOUND, all->exec->args[0], 127);
-		free(cmd_path);
-		free_and_exit_child(all, program, 127);
-	}
-	//fprintf(stderr,"\033[0;34m ⚠️ DEBUG: testeando salida de execve \n  \033[0m\n");
-	free(cmd_path);
-	free_and_exit_child(all, program,0);
 }

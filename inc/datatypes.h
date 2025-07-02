@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   datatypes.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: natferna <natferna@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 08:43:48 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/26 22:23:25 by natferna         ###   ########.fr       */
+/*   Updated: 2025/07/01 13:27:29 by mzolotar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,18 @@
 # define PATH_MAX					4096
 # define HERE_DOCS_MAX				10
 # define ARG_MAX_ECHO				((PROMPT_SIZE * 3)- 2)
+
+//#➵⤐──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌──Macros_free:──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+# define FREE_ALL              0   // Liberar todo, incluyendo here_doc
+# define FREE_CHILD            1   // Liberar todo excepto here_doc
+# define FREE_ONLY_HEREDOC     2   // Solo liberar here_doc (en procesos hijo)
+
+//#➵⤐──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌──Macros_here:──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+# define HEREDOC_OK 0					// Todo bien	-> continuar
+# define HEREDOC_SIGNAL -1				// Ctrl+C detectado (g_atomic)	-> cerrar fd, set last_exit_status = 130
+# define HEREDOC_ALLOC_FAIL -2			// fallo malloc / ft_strdup		-> cerrar fd, error grave, last_exit_status = 1
 
 //#➵⤐──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌──Macros_error:──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
 
@@ -132,6 +144,7 @@ typedef struct s_metachars
 typedef struct s_here
 {
 	int				here_doc_num;								
+	int				here_doc_created;
 	int				fd_array[HERE_DOCS_MAX];					
 	char			*here_name_docs[HERE_DOCS_MAX];				
 	char			*expanded_line_here; 					// con malloc	
@@ -146,8 +159,7 @@ typedef struct s_all
 	t_tokens		*tokens;
 	t_tokens		*tokens_head;
 	char			**token;
-	char			*line;
-	 bool        needs_more_input; 
+	char			*line; 
 }					t_all;
 
 
@@ -179,12 +191,12 @@ bool				init_meta_splits(t_metachars *meta, t_program *program);
 
 
 //--FREE──╌╌➣⋆➣╌╌──⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
-// src/parcer/free_structs.c (/5)	// ⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
+// src/parcer/free_structs.c (/5)	// 🚩_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
 void				free_exec(t_exec *exec);
 void				free_meta_struct(t_metachars *meta);
-void				free_here(t_here **ph);
+void				free_here(t_here *here, int mode);
 void				free_program(t_program *program);
-void				free_all_structs(t_all *all);
+void				free_all_structs(t_all *all, int mode);
 
 // /src/parcer/free_utils.c (/5)	// ⚠️_NORMA + ⚠️_testeo + ⚠️_DESCRIPCIONES 
 //--------------------- FREE EXEC ---------------------//

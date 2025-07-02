@@ -6,7 +6,7 @@
 /*   By: mzolotar <mzolotar@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/08 23:46:03 by mzolotar          #+#    #+#             */
-/*   Updated: 2025/06/19 10:25:58 by mzolotar         ###   ########.fr       */
+/*   Updated: 2025/06/30 12:10:28 by mzolotar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,7 +160,7 @@ void	free_child (t_program *program, t_all *all)
 	//fprintf(stderr,"debug: primer nodo al entrar en free_child : %s\n",  all->tokens->content);
 	//(void)all;
 	if (all)
-		free_all_structs(all);
+		free_all_structs(all, 1);
 	//free_env
 	if (program->env)
 	{
